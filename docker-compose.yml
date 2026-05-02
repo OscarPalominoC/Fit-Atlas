@@ -1,0 +1,51 @@
+services:
+  database:
+    image: mongo:latest
+    container_name: gym_tracker_db
+    ports:
+      - "27018:27017"
+    volumes:
+      - gym_tracker_data:/data/db
+    networks:
+      - gym_tracker_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gym_tracker_backend
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./backend:/app
+    environment:
+      - MONGODB_URI=mongodb://database:27017
+      - DATABASE_NAME=fitatlas
+    depends_on:
+      - database
+    networks:
+      - gym_tracker_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gym_tracker_frontend
+    ports:
+      - "5176:5176"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8003
+    depends_on:
+      - backend
+    networks:
+      - gym_tracker_network
+
+networks:
+  gym_tracker_network:
+    driver: bridge
+
+volumes:
+  gym_tracker_data:

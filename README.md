@@ -41,7 +41,7 @@ FitAtlas 2.0 represents the cutting edge of workout tracking. It is built for op
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd "Gym Tracker"
+   cd "Fit Atlas"
    ```
 
 2. **Backend Setup**

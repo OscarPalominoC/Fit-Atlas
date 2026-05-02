@@ -11,7 +11,15 @@ EXERCISE_GIFS_DIR = STATIC_DIR / "exercise-gifs"
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5176",
+        "http://127.0.0.1:5176",
+        "https://oscarpalomino.dev",
+        "https://www.oscarpalomino.dev",
+        "capacitor://localhost",
+        "ionic://localhost",
+        "https://localhost",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

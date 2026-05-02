@@ -8,4 +8,17 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  base: '/fit-atlas/',
+  server: {
+    host: '0.0.0.0',
+    port: 5176,
+    strictPort: true,
+    allowedHosts: ['oscarpalomino.dev', 'www.oscarpalomino.dev'],
+    hmr: {
+      host: 'oscarpalomino.dev',
+      clientPort: 443,
+      protocol: 'wss',
+      path: 'fit-atlas/@vite/'
+    }
+  }
 })
