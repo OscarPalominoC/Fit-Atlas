@@ -18,7 +18,7 @@ export default defineConfig({
       host: 'oscarpalomino.dev',
       clientPort: 443,
       protocol: 'wss',
-      path: '/fit-atlas/@vite/'
+      path: '/@vite/'
     }
   }
 })

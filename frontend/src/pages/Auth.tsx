@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Dumbbell, Mail, Lock, User as UserIcon, ArrowRight, Loader2, ChevronLeft } from 'lucide-react';
-import axios from 'axios';
+import { api } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { languages } from '../languages';
 
@@ -32,14 +32,14 @@ const Auth: React.FC<AuthProps> = ({ onBack, onSuccess, language = 'es' }) => {
 
     try {
       if (mode === 'register') {
-        const res = await axios.post('http://localhost:8000/auth/register', formData);
+        const res = await api.post('/auth/register', formData);
         setAuth(res.data.user, res.data.access_token);
       } else {
         const params = new URLSearchParams();
         params.append('username', formData.email);
         params.append('password', formData.password);
         
-        const res = await axios.post('http://localhost:8000/auth/login', params);
+        const res = await api.post('/auth/login', params);
         setAuth(res.data.user, res.data.access_token);
       }
       onSuccess();
