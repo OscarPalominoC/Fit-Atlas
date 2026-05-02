@@ -19,6 +19,7 @@ app.add_middleware(
         "capacitor://localhost",
         "ionic://localhost",
         "https://localhost",
+        "http://localhost",
     ],
     allow_credentials=True,
     allow_methods=["*"],
