@@ -50,6 +50,3 @@ out/
 .DS_Store
 Thumbs.db
 
-# Database
-/data/
-/db/

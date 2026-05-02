@@ -19,7 +19,7 @@ services:
     volumes:
       - ./backend:/app
     environment:
-      - MONGODB_URI=mongodb://database:27017
+      - MONGO_URL=mongodb://database:27017
       - DATABASE_NAME=fitatlas
     depends_on:
       - database
