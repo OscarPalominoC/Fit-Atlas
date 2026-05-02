@@ -528,7 +528,7 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
   );
 };
 
-const RoutineExerciseItem = ({ ex, language, onAdd }: { ex: any, language: string, onAdd: (ex: any) => void }) => {
+const RoutineExerciseItem = ({ ex, language, onAdd }: { ex: any, language: 'en' | 'es', onAdd: (ex: any) => void }) => {
   const [expanded, setExpanded] = React.useState(false);
   const instructions = ex.translations?.[language]?.instructions;
   
