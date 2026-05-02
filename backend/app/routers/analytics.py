@@ -1,0 +1,26 @@
+from fastapi import APIRouter, HTTPException
+from typing import Dict, Any
+from app.logic.analytics import calculate_efficiency, get_focus_distribution, get_muscle_recovery_states
+
+router = APIRouter()
+
+@router.get("/summary/{user_id}")
+async def get_analytics_summary(user_id: str) -> Dict[str, Any]:
+    try:
+        efficiency = await calculate_efficiency(user_id)
+        focus = await get_focus_distribution(user_id)
+        
+        return {
+            "efficiency": round(efficiency, 1),
+            "focus_distribution": focus
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/recovery/{user_id}")
+async def get_muscle_recovery(user_id: str) -> Dict[str, Any]:
+    try:
+        states = await get_muscle_recovery_states(user_id)
+        return states
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
