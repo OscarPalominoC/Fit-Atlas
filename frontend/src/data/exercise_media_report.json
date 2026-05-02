@@ -1,0 +1,1000 @@
+{
+  "generatedAt": "2026-05-01T21:05:13.791Z",
+  "downloaded": [
+    {
+      "name": "Push-Up",
+      "slug": "push-up",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0662-I4hDWkc.gif",
+      "assetPath": "/exercise-gifs/push-up.gif"
+    },
+    {
+      "name": "Incline Push-Up",
+      "slug": "incline-push-up",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0493-B1EVP9F.gif",
+      "assetPath": "/exercise-gifs/incline-push-up.gif"
+    },
+    {
+      "name": "Decline Push-Up",
+      "slug": "decline-push-up",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0279-i5cEhka.gif",
+      "assetPath": "/exercise-gifs/decline-push-up.gif"
+    },
+    {
+      "name": "Wide Push-Up",
+      "slug": "wide-push-up",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/1311-JmMVpR3.gif",
+      "assetPath": "/exercise-gifs/wide-push-up.gif"
+    },
+    {
+      "name": "Diamond Push-Up",
+      "slug": "diamond-push-up",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0283-soIB2rj.gif",
+      "assetPath": "/exercise-gifs/diamond-push-up.gif"
+    },
+    {
+      "name": "Bench Press",
+      "slug": "bench-press",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Bench-Press.gif",
+      "assetPath": "/exercise-gifs/bench-press.gif"
+    },
+    {
+      "name": "Incline Bench Press",
+      "slug": "incline-bench-press",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0047-3TZduzM.gif",
+      "assetPath": "/exercise-gifs/incline-bench-press.gif"
+    },
+    {
+      "name": "Decline Bench Press",
+      "slug": "decline-bench-press",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0033-GrO65fd.gif",
+      "assetPath": "/exercise-gifs/decline-bench-press.gif"
+    },
+    {
+      "name": "Dumbbell Chest Press",
+      "slug": "dumbbell-chest-press",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0289-SpYC0Kp.gif",
+      "assetPath": "/exercise-gifs/dumbbell-chest-press.gif"
+    },
+    {
+      "name": "Incline Dumbbell Press",
+      "slug": "incline-dumbbell-press",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Incline-Dumbbell-Press.gif",
+      "assetPath": "/exercise-gifs/incline-dumbbell-press.gif"
+    },
+    {
+      "name": "Chest Fly",
+      "slug": "chest-fly",
+      "sourceUrl": "https://github.com/omercotkd/exercises-gifs/raw/main/assets/0308.gif",
+      "assetPath": "/exercise-gifs/chest-fly.gif"
+    },
+    {
+      "name": "Incline Fly",
+      "slug": "incline-fly",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0171-tBWXbIT.gif",
+      "assetPath": "/exercise-gifs/incline-fly.gif"
+    },
+    {
+      "name": "Chest Dips",
+      "slug": "chest-dips",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/06/Chest-Dips.gif",
+      "assetPath": "/exercise-gifs/chest-dips.gif"
+    },
+    {
+      "name": "Svend Press",
+      "slug": "svend-press",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/06/Svend-Press.gif",
+      "assetPath": "/exercise-gifs/svend-press.gif"
+    },
+    {
+      "name": "Overhead Press",
+      "slug": "overhead-press",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/1012-u4bAmKp.gif",
+      "assetPath": "/exercise-gifs/overhead-press.gif"
+    },
+    {
+      "name": "Dumbbell Shoulder Press",
+      "slug": "dumbbell-shoulder-press",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Shoulder-Press.gif",
+      "assetPath": "/exercise-gifs/dumbbell-shoulder-press.gif"
+    },
+    {
+      "name": "Arnold Press",
+      "slug": "arnold-press",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Arnold-Press.gif",
+      "assetPath": "/exercise-gifs/arnold-press.gif"
+    },
+    {
+      "name": "Lateral Raise",
+      "slug": "lateral-raise",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0178-goJ6ezq.gif",
+      "assetPath": "/exercise-gifs/lateral-raise.gif"
+    },
+    {
+      "name": "Front Raise",
+      "slug": "front-raise",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0978-TFA88iB.gif",
+      "assetPath": "/exercise-gifs/front-raise.gif"
+    },
+    {
+      "name": "Rear Delt Fly",
+      "slug": "rear-delt-fly",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Rear-Delt-Machine-Flys.gif",
+      "assetPath": "/exercise-gifs/rear-delt-fly.gif"
+    },
+    {
+      "name": "Upright Row",
+      "slug": "upright-row",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0120-UDlhcO8.gif",
+      "assetPath": "/exercise-gifs/upright-row.gif"
+    },
+    {
+      "name": "Pike Push-Up",
+      "slug": "pike-push-up",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/06/Pike-Push-up.gif",
+      "assetPath": "/exercise-gifs/pike-push-up.gif"
+    },
+    {
+      "name": "Handstand Push-Up",
+      "slug": "handstand-push-up",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0471-rQxwMxO.gif",
+      "assetPath": "/exercise-gifs/handstand-push-up.gif"
+    },
+    {
+      "name": "Face Pull",
+      "slug": "face-pull",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Face-Pull.gif",
+      "assetPath": "/exercise-gifs/face-pull.gif"
+    },
+    {
+      "name": "Cuban Press",
+      "slug": "cuban-press",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0299-QfAKy1G.gif",
+      "assetPath": "/exercise-gifs/cuban-press.gif"
+    },
+    {
+      "name": "Dumbbell Y Raise",
+      "slug": "dumbbell-y-raise",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/3541-PbzNu7c.gif",
+      "assetPath": "/exercise-gifs/dumbbell-y-raise.gif"
+    },
+    {
+      "name": "Barbell Curl",
+      "slug": "barbell-curl",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0031-25GPyDY.gif",
+      "assetPath": "/exercise-gifs/barbell-curl.gif"
+    },
+    {
+      "name": "Dumbbell Curl",
+      "slug": "dumbbell-curl",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Curl.gif",
+      "assetPath": "/exercise-gifs/dumbbell-curl.gif"
+    },
+    {
+      "name": "Hammer Curl",
+      "slug": "hammer-curl",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Hammer-Curl.gif",
+      "assetPath": "/exercise-gifs/hammer-curl.gif"
+    },
+    {
+      "name": "Concentration Curl",
+      "slug": "concentration-curl",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Concentration-Curl.gif",
+      "assetPath": "/exercise-gifs/concentration-curl.gif"
+    },
+    {
+      "name": "Incline Curl",
+      "slug": "incline-curl",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0318-ae9UoXQ.gif",
+      "assetPath": "/exercise-gifs/incline-curl.gif"
+    },
+    {
+      "name": "Preacher Curl",
+      "slug": "preacher-curl",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0070-qOgPVf6.gif",
+      "assetPath": "/exercise-gifs/preacher-curl.gif"
+    },
+    {
+      "name": "Chin-Up",
+      "slug": "chin-up",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/1326-T2mxWqc.gif",
+      "assetPath": "/exercise-gifs/chin-up.gif"
+    },
+    {
+      "name": "Zottman Curl",
+      "slug": "zottman-curl",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/04/zottman-curl.gif",
+      "assetPath": "/exercise-gifs/zottman-curl.gif"
+    },
+    {
+      "name": "Cable Curl",
+      "slug": "cable-curl",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0868-G08RZcQ.gif",
+      "assetPath": "/exercise-gifs/cable-curl.gif"
+    },
+    {
+      "name": "Spider Curl",
+      "slug": "spider-curl",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/1675-6sMAmNv.gif",
+      "assetPath": "/exercise-gifs/spider-curl.gif"
+    },
+    {
+      "name": "Wrist Curl",
+      "slug": "wrist-curl",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/barbell-Wrist-Curl.gif",
+      "assetPath": "/exercise-gifs/wrist-curl.gif"
+    },
+    {
+      "name": "Reverse Wrist Curl",
+      "slug": "reverse-wrist-curl",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Reverse-Wrist-Curl.gif",
+      "assetPath": "/exercise-gifs/reverse-wrist-curl.gif"
+    },
+    {
+      "name": "Farmer Carry",
+      "slug": "farmer-carry",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/2133-qPEzJjA.gif",
+      "assetPath": "/exercise-gifs/farmer-carry.gif"
+    },
+    {
+      "name": "Plate Pinch Hold",
+      "slug": "plate-pinch-hold",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2024/06/Weight-Plate-Hand-Squeeze.gif",
+      "assetPath": "/exercise-gifs/plate-pinch-hold.gif"
+    },
+    {
+      "name": "Reverse Curl",
+      "slug": "reverse-curl",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0080-xNrS20v.gif",
+      "assetPath": "/exercise-gifs/reverse-curl.gif"
+    },
+    {
+      "name": "Dead Hang",
+      "slug": "dead-hang",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/dead-hang-360x360.png",
+      "assetPath": "/exercise-gifs/dead-hang.png"
+    },
+    {
+      "name": "Towel Pull-Up",
+      "slug": "towel-pull-up",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/1326-T2mxWqc.gif",
+      "assetPath": "/exercise-gifs/towel-pull-up.gif"
+    },
+    {
+      "name": "Wrist Roller",
+      "slug": "wrist-roller",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/08/wrist-roller.gif",
+      "assetPath": "/exercise-gifs/wrist-roller.gif"
+    },
+    {
+      "name": "Triceps Pushdown",
+      "slug": "triceps-pushdown",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2022/11/One-arm-triceps-pushdown.gif",
+      "assetPath": "/exercise-gifs/triceps-pushdown.gif"
+    },
+    {
+      "name": "Bench Dips",
+      "slug": "bench-dips",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Bench-Dips.gif",
+      "assetPath": "/exercise-gifs/bench-dips.gif"
+    },
+    {
+      "name": "Close-Grip Bench Press",
+      "slug": "close-grip-bench-press",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Close-Grip-Bench-Press.gif",
+      "assetPath": "/exercise-gifs/close-grip-bench-press.gif"
+    },
+    {
+      "name": "Rope Pushdown",
+      "slug": "rope-pushdown",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/06/Rope-Pushdown.gif",
+      "assetPath": "/exercise-gifs/rope-pushdown.gif"
+    },
+    {
+      "name": "JM Press",
+      "slug": "jm-press",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0052-ZsiqXYa.gif",
+      "assetPath": "/exercise-gifs/jm-press.gif"
+    },
+    {
+      "name": "Barbell Shrugs",
+      "slug": "barbell-shrugs",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0095-dG7tG5y.gif",
+      "assetPath": "/exercise-gifs/barbell-shrugs.gif"
+    },
+    {
+      "name": "Dumbbell Shrugs",
+      "slug": "dumbbell-shrugs",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0406-NJzBsGJ.gif",
+      "assetPath": "/exercise-gifs/dumbbell-shrugs.gif"
+    },
+    {
+      "name": "High Pull",
+      "slug": "high-pull",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0548-8ARQ9Hw.gif",
+      "assetPath": "/exercise-gifs/high-pull.gif"
+    },
+    {
+      "name": "Farmer Walk",
+      "slug": "farmer-walk",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2022/02/Farmers-walk_Cardio.gif",
+      "assetPath": "/exercise-gifs/farmer-walk.gif"
+    },
+    {
+      "name": "Pull-Up",
+      "slug": "pull-up",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/1326-T2mxWqc.gif",
+      "assetPath": "/exercise-gifs/pull-up.gif"
+    },
+    {
+      "name": "Lat Pulldown",
+      "slug": "lat-pulldown",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Lat-Pulldown.gif",
+      "assetPath": "/exercise-gifs/lat-pulldown.gif"
+    },
+    {
+      "name": "Bent Over Row",
+      "slug": "bent-over-row",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0027-eZyBC3j.gif",
+      "assetPath": "/exercise-gifs/bent-over-row.gif"
+    },
+    {
+      "name": "Dumbbell Row",
+      "slug": "dumbbell-row",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Row.gif",
+      "assetPath": "/exercise-gifs/dumbbell-row.gif"
+    },
+    {
+      "name": "Seated Cable Row",
+      "slug": "seated-cable-row",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0861-fUBheHs.gif",
+      "assetPath": "/exercise-gifs/seated-cable-row.gif"
+    },
+    {
+      "name": "T-Bar Row",
+      "slug": "t-bar-row",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/04/t-bar-rows.gif",
+      "assetPath": "/exercise-gifs/t-bar-row.gif"
+    },
+    {
+      "name": "Inverted Row",
+      "slug": "inverted-row",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0499-bZGHsAZ.gif",
+      "assetPath": "/exercise-gifs/inverted-row.gif"
+    },
+    {
+      "name": "Straight Arm Pulldown",
+      "slug": "straight-arm-pulldown",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0238-x69MAlq.gif",
+      "assetPath": "/exercise-gifs/straight-arm-pulldown.gif"
+    },
+    {
+      "name": "Deadlift",
+      "slug": "deadlift",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Deadlift.gif",
+      "assetPath": "/exercise-gifs/deadlift.gif"
+    },
+    {
+      "name": "Pendlay Row",
+      "slug": "pendlay-row",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/3017-r0z6xzQ.gif",
+      "assetPath": "/exercise-gifs/pendlay-row.gif"
+    },
+    {
+      "name": "Meadows Row",
+      "slug": "meadows-row",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/10/One-Arm-Landmine-Row.gif",
+      "assetPath": "/exercise-gifs/meadows-row.gif"
+    },
+    {
+      "name": "Machine Row",
+      "slug": "machine-row",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Seated-Row-Machine.gif",
+      "assetPath": "/exercise-gifs/machine-row.gif"
+    },
+    {
+      "name": "Back Extension",
+      "slug": "back-extension",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0573-rUXfn3R.gif",
+      "assetPath": "/exercise-gifs/back-extension.gif"
+    },
+    {
+      "name": "Superman",
+      "slug": "superman",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Superman-exercise.gif",
+      "assetPath": "/exercise-gifs/superman.gif"
+    },
+    {
+      "name": "Good Morning",
+      "slug": "good-morning",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Good-Morning.gif",
+      "assetPath": "/exercise-gifs/good-morning.gif"
+    },
+    {
+      "name": "Romanian Deadlift",
+      "slug": "romanian-deadlift",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Romanian-Deadlift.gif",
+      "assetPath": "/exercise-gifs/romanian-deadlift.gif"
+    },
+    {
+      "name": "Hyperextension",
+      "slug": "hyperextension",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0489-zhMwOwE.gif",
+      "assetPath": "/exercise-gifs/hyperextension.gif"
+    },
+    {
+      "name": "Reverse Hyper",
+      "slug": "reverse-hyper",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0593-Krmb3cB.gif",
+      "assetPath": "/exercise-gifs/reverse-hyper.gif"
+    },
+    {
+      "name": "Crunch",
+      "slug": "crunch",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0274-TFqbd8t.gif",
+      "assetPath": "/exercise-gifs/crunch.gif"
+    },
+    {
+      "name": "Reverse Crunch",
+      "slug": "reverse-crunch",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0872-nCU1Ekp.gif",
+      "assetPath": "/exercise-gifs/reverse-crunch.gif"
+    },
+    {
+      "name": "Sit-Up",
+      "slug": "sit-up",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/1758-aumB2IV.gif",
+      "assetPath": "/exercise-gifs/sit-up.gif"
+    },
+    {
+      "name": "Hanging Leg Raise",
+      "slug": "hanging-leg-raise",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0472-I3tsCnC.gif",
+      "assetPath": "/exercise-gifs/hanging-leg-raise.gif"
+    },
+    {
+      "name": "Dead Bug",
+      "slug": "dead-bug",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0276-iny3m5y.gif",
+      "assetPath": "/exercise-gifs/dead-bug.gif"
+    },
+    {
+      "name": "Mountain Climbers",
+      "slug": "mountain-climbers",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0630-RJgzwny.gif",
+      "assetPath": "/exercise-gifs/mountain-climbers.gif"
+    },
+    {
+      "name": "Russian Twist",
+      "slug": "russian-twist",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0687-XVDdcoj.gif",
+      "assetPath": "/exercise-gifs/russian-twist.gif"
+    },
+    {
+      "name": "Side Plank",
+      "slug": "side-plank",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Side-Plank-1-360x360.png",
+      "assetPath": "/exercise-gifs/side-plank.png"
+    },
+    {
+      "name": "Bicycle Crunch",
+      "slug": "bicycle-crunch",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Bicycle-Crunch.gif",
+      "assetPath": "/exercise-gifs/bicycle-crunch.gif"
+    },
+    {
+      "name": "Hanging Oblique Raise",
+      "slug": "hanging-oblique-raise",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/1761-BaE7O6U.gif",
+      "assetPath": "/exercise-gifs/hanging-oblique-raise.gif"
+    },
+    {
+      "name": "Side Bend",
+      "slug": "side-bend",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0002-Hy9D21L.gif",
+      "assetPath": "/exercise-gifs/side-bend.gif"
+    },
+    {
+      "name": "Heel Touches",
+      "slug": "heel-touches",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Heel-Touch.gif",
+      "assetPath": "/exercise-gifs/heel-touches.gif"
+    },
+    {
+      "name": "Pallof Press",
+      "slug": "pallof-press",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0979-9pa4H5m.gif",
+      "assetPath": "/exercise-gifs/pallof-press.gif"
+    },
+    {
+      "name": "Glute Bridge",
+      "slug": "glute-bridge",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Glute-Bridge-.gif",
+      "assetPath": "/exercise-gifs/glute-bridge.gif"
+    },
+    {
+      "name": "Step Up",
+      "slug": "step-up",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/1008-d5bTEPV.gif",
+      "assetPath": "/exercise-gifs/step-up.gif"
+    },
+    {
+      "name": "Cable Kickback",
+      "slug": "cable-kickback",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0860-HEJ6DIX.gif",
+      "assetPath": "/exercise-gifs/cable-kickback.gif"
+    },
+    {
+      "name": "Frog Pumps",
+      "slug": "frog-pumps",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Glute-Bridge-.gif",
+      "assetPath": "/exercise-gifs/frog-pumps.gif"
+    },
+    {
+      "name": "Sumo Squat",
+      "slug": "sumo-squat",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/3142-dzz6BiV.gif",
+      "assetPath": "/exercise-gifs/sumo-squat.gif"
+    },
+    {
+      "name": "Curtsy Lunge",
+      "slug": "curtsy-lunge",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2023/09/curtsy-lunge.gif",
+      "assetPath": "/exercise-gifs/curtsy-lunge.gif"
+    },
+    {
+      "name": "Kettlebell Swing",
+      "slug": "kettlebell-swing",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0549-UHJlbu3.gif",
+      "assetPath": "/exercise-gifs/kettlebell-swing.gif"
+    },
+    {
+      "name": "Back Squat",
+      "slug": "back-squat",
+      "sourceUrl": "https://github.com/omercotkd/exercises-gifs/raw/main/assets/0043.gif",
+      "assetPath": "/exercise-gifs/back-squat.gif"
+    },
+    {
+      "name": "Front Squat",
+      "slug": "front-squat",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/06/front-squat.gif",
+      "assetPath": "/exercise-gifs/front-squat.gif"
+    },
+    {
+      "name": "Goblet Squat",
+      "slug": "goblet-squat",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/1760-yn8yg1r.gif",
+      "assetPath": "/exercise-gifs/goblet-squat.gif"
+    },
+    {
+      "name": "Walking Lunges",
+      "slug": "walking-lunges",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/1460-IZVHb27.gif",
+      "assetPath": "/exercise-gifs/walking-lunges.gif"
+    },
+    {
+      "name": "Leg Press",
+      "slug": "leg-press",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2015/11/Leg-Press.gif",
+      "assetPath": "/exercise-gifs/leg-press.gif"
+    },
+    {
+      "name": "Split Squat",
+      "slug": "split-squat",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0809-QpXqiq8.gif",
+      "assetPath": "/exercise-gifs/split-squat.gif"
+    },
+    {
+      "name": "Hack Squat",
+      "slug": "hack-squat",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0046-5VCj6iH.gif",
+      "assetPath": "/exercise-gifs/hack-squat.gif"
+    },
+    {
+      "name": "Wall Sit",
+      "slug": "wall-sit",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/06/Wall-Sit-238x360.png",
+      "assetPath": "/exercise-gifs/wall-sit.png"
+    },
+    {
+      "name": "Pistol Squat",
+      "slug": "pistol-squat",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Pistol-Squat.gif",
+      "assetPath": "/exercise-gifs/pistol-squat.gif"
+    },
+    {
+      "name": "Cossack Squat",
+      "slug": "cossack-squat",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/05/Cossack-Squat.gif",
+      "assetPath": "/exercise-gifs/cossack-squat.gif"
+    },
+    {
+      "name": "Sumo Deadlift",
+      "slug": "sumo-deadlift",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/04/Barbell-Sumo-Deadlift.gif",
+      "assetPath": "/exercise-gifs/sumo-deadlift.gif"
+    },
+    {
+      "name": "Adductor Machine",
+      "slug": "adductor-machine",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/HIP-ADDUCTION-MACHINE.gif",
+      "assetPath": "/exercise-gifs/adductor-machine.gif"
+    },
+    {
+      "name": "Side Lunge",
+      "slug": "side-lunge",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/05/Side-Lunge-Stretch.gif",
+      "assetPath": "/exercise-gifs/side-lunge.gif"
+    },
+    {
+      "name": "Lateral Band Walk",
+      "slug": "lateral-band-walk",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2022/02/Resistance-Band-Lateral-Walk.gif",
+      "assetPath": "/exercise-gifs/lateral-band-walk.gif"
+    },
+    {
+      "name": "Clamshell",
+      "slug": "clamshell",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0710-7WaDzyL.gif",
+      "assetPath": "/exercise-gifs/clamshell.gif"
+    },
+    {
+      "name": "Fire Hydrant",
+      "slug": "fire-hydrant",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0130-u27Kcdz.gif",
+      "assetPath": "/exercise-gifs/fire-hydrant.gif"
+    },
+    {
+      "name": "Monster Walk",
+      "slug": "monster-walk",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0628-O95afRA.gif",
+      "assetPath": "/exercise-gifs/monster-walk.gif"
+    },
+    {
+      "name": "Stiff Leg Deadlift",
+      "slug": "stiff-leg-deadlift",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2022/01/Stiff-Leg-Deadlift.gif",
+      "assetPath": "/exercise-gifs/stiff-leg-deadlift.gif"
+    },
+    {
+      "name": "Nordic Curl",
+      "slug": "nordic-curl",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/06/Nordic-Hamstring-Curl.gif",
+      "assetPath": "/exercise-gifs/nordic-curl.gif"
+    },
+    {
+      "name": "Glute Ham Raise",
+      "slug": "glute-ham-raise",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/3193-Vvwjz6N.gif",
+      "assetPath": "/exercise-gifs/glute-ham-raise.gif"
+    },
+    {
+      "name": "Standing Calf Raise",
+      "slug": "standing-calf-raise",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/06/Standing-Calf-Raise.gif",
+      "assetPath": "/exercise-gifs/standing-calf-raise.gif"
+    },
+    {
+      "name": "Seated Calf Raise",
+      "slug": "seated-calf-raise",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0088-ktsFQAZ.gif",
+      "assetPath": "/exercise-gifs/seated-calf-raise.gif"
+    },
+    {
+      "name": "Donkey Calf Raise",
+      "slug": "donkey-calf-raise",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0284-u5ESqzH.gif",
+      "assetPath": "/exercise-gifs/donkey-calf-raise.gif"
+    },
+    {
+      "name": "Single Leg Calf Raise",
+      "slug": "single-leg-calf-raise",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/06/Single-Leg-Calf-Raises.gif",
+      "assetPath": "/exercise-gifs/single-leg-calf-raise.gif"
+    },
+    {
+      "name": "Jump Rope Calf Bounce",
+      "slug": "jump-rope-calf-bounce",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/2612-e1e76I2.gif",
+      "assetPath": "/exercise-gifs/jump-rope-calf-bounce.gif"
+    },
+    {
+      "name": "Burpees",
+      "slug": "burpees",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/burpees.gif",
+      "assetPath": "/exercise-gifs/burpees.gif"
+    },
+    {
+      "name": "Thrusters",
+      "slug": "thrusters",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/3305-f7Y9eDZ.gif",
+      "assetPath": "/exercise-gifs/thrusters.gif"
+    },
+    {
+      "name": "Clean and Press",
+      "slug": "clean-and-press",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0028-SGY8Zui.gif",
+      "assetPath": "/exercise-gifs/clean-and-press.gif"
+    },
+    {
+      "name": "Snatch",
+      "slug": "snatch",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0776-dG5Smob.gif",
+      "assetPath": "/exercise-gifs/snatch.gif"
+    },
+    {
+      "name": "Turkish Get-Up",
+      "slug": "turkish-get-up",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/04/Turkish-Get-Up-Squat-style.gif",
+      "assetPath": "/exercise-gifs/turkish-get-up.gif"
+    },
+    {
+      "name": "Man Makers",
+      "slug": "man-makers",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/06/Dumbbell-Burpees.gif",
+      "assetPath": "/exercise-gifs/man-makers.gif"
+    },
+    {
+      "name": "Bear Crawl",
+      "slug": "bear-crawl",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/3360-0Yz8WdV.gif",
+      "assetPath": "/exercise-gifs/bear-crawl.gif"
+    },
+    {
+      "name": "Battle Ropes",
+      "slug": "battle-ropes",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2015/07/Battle-Rope.gif",
+      "assetPath": "/exercise-gifs/battle-ropes.gif"
+    },
+    {
+      "name": "Sled Push",
+      "slug": "sled-push",
+      "sourceUrl": "https://liftmanual.com/wp-content/uploads/2023/04/power-sled-push.gif",
+      "assetPath": "/exercise-gifs/sled-push.gif"
+    },
+    {
+      "name": "Walking",
+      "slug": "walking",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/09/Walking.gif",
+      "assetPath": "/exercise-gifs/walking.gif"
+    },
+    {
+      "name": "Incline Walking",
+      "slug": "incline-walking",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/3666-rjiM4L3.gif",
+      "assetPath": "/exercise-gifs/incline-walking.gif"
+    },
+    {
+      "name": "Stationary Bike",
+      "slug": "stationary-bike",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/0798-a8VDgLw.gif",
+      "assetPath": "/exercise-gifs/stationary-bike.gif"
+    },
+    {
+      "name": "Rowing",
+      "slug": "rowing",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/06/Rowing-Machine.gif",
+      "assetPath": "/exercise-gifs/rowing.gif"
+    },
+    {
+      "name": "Elliptical",
+      "slug": "elliptical",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/10/Elliptical-Machine.gif",
+      "assetPath": "/exercise-gifs/elliptical.gif"
+    },
+    {
+      "name": "Swimming",
+      "slug": "swimming",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/05/Swimming.gif",
+      "assetPath": "/exercise-gifs/swimming.gif"
+    },
+    {
+      "name": "Running",
+      "slug": "running",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/07/Run.gif",
+      "assetPath": "/exercise-gifs/running.gif"
+    },
+    {
+      "name": "Sprint Intervals",
+      "slug": "sprint-intervals",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2023/06/sprint.gif",
+      "assetPath": "/exercise-gifs/sprint-intervals.gif"
+    },
+    {
+      "name": "Jump Rope",
+      "slug": "jump-rope",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/2612-e1e76I2.gif",
+      "assetPath": "/exercise-gifs/jump-rope.gif"
+    },
+    {
+      "name": "Stair Climber",
+      "slug": "stair-climber",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/10/Walking-on-Stepmill.gif",
+      "assetPath": "/exercise-gifs/stair-climber.gif"
+    },
+    {
+      "name": "High Knees",
+      "slug": "high-knees",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/3655-J9zIWig.gif",
+      "assetPath": "/exercise-gifs/high-knees.gif"
+    },
+    {
+      "name": "Butt Kicks",
+      "slug": "butt-kicks",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/10/Butt-Kicks.gif",
+      "assetPath": "/exercise-gifs/butt-kicks.gif"
+    },
+    {
+      "name": "Jumping Jacks",
+      "slug": "jumping-jacks",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/05/Jumping-jack.gif",
+      "assetPath": "/exercise-gifs/jumping-jacks.gif"
+    },
+    {
+      "name": "Skater Jumps",
+      "slug": "skater-jumps",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Skater.gif",
+      "assetPath": "/exercise-gifs/skater-jumps.gif"
+    },
+    {
+      "name": "Box Jumps",
+      "slug": "box-jumps",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2015/07/The-Box-Jump.gif",
+      "assetPath": "/exercise-gifs/box-jumps.gif"
+    },
+    {
+      "name": "Assault Bike",
+      "slug": "assault-bike",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/06/Bike.gif",
+      "assetPath": "/exercise-gifs/assault-bike.gif"
+    },
+    {
+      "name": "Shadow Boxing",
+      "slug": "shadow-boxing",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2023/09/shadow-boxing-workout.gif",
+      "assetPath": "/exercise-gifs/shadow-boxing.gif"
+    },
+    {
+      "name": "Medicine Ball Slams",
+      "slug": "medicine-ball-slams",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/1354-oHg8eop.gif",
+      "assetPath": "/exercise-gifs/medicine-ball-slams.gif"
+    },
+    {
+      "name": "Jump Lunges",
+      "slug": "jump-lunges",
+      "sourceUrl": "https://github.com/hasaneyldrm/exercises-dataset/raw/main/videos/3582-PM1PZjg.gif",
+      "assetPath": "/exercise-gifs/jump-lunges.gif"
+    }
+  ],
+  "rejected": [
+    {
+      "name": "Overhead Triceps Extension",
+      "slug": "overhead-triceps-extension",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2020/05/Banded-Triceps-Extension.gif",
+      "reason": "Maps to a banded triceps extension while the exercise describes a dumbbell overhead extension."
+    },
+    {
+      "name": "Skull Crushers",
+      "slug": "skull-crushers",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2022/02/Bodyweight-Skull-Crushers.gif",
+      "reason": "Maps to a bodyweight skull crusher while the exercise describes an EZ-bar skull crusher."
+    },
+    {
+      "name": "Triceps Kickback",
+      "slug": "triceps-kickback",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Cable-Tricep-Kickback.gif",
+      "reason": "Maps to a cable kickback while the exercise describes a dumbbell kickback."
+    },
+    {
+      "name": "Bulgarian Split Squat",
+      "slug": "bulgarian-split-squat",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2023/03/Bulgarian-Jump-Squat.gif",
+      "reason": "Maps to a jump-squat variant, not the described controlled split squat."
+    },
+    {
+      "name": "Single Leg Hip Thrust",
+      "slug": "single-leg-hip-thrust",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2022/02/Single-Leg-Hip-Thrust-Jump.gif",
+      "reason": "Maps to a jump variant, not the described hip thrust."
+    },
+    {
+      "name": "Copenhagen Plank",
+      "slug": "copenhagen-plank",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/plank.gif",
+      "reason": "Maps to a generic plank instead of a Copenhagen plank."
+    },
+    {
+      "name": "Side Leg Raise",
+      "slug": "side-leg-raise",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Lying-Leg-Raise.gif",
+      "reason": "Maps to a generic lying leg raise, not lateral hip abduction."
+    },
+    {
+      "name": "Hamstring Curl",
+      "slug": "hamstring-curl",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/06/Nordic-Hamstring-Curl.gif",
+      "reason": "Maps to a nordic curl, not a machine hamstring curl."
+    },
+    {
+      "name": "Single Leg RDL",
+      "slug": "single-leg-rdl",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2022/04/Single-Leg-Press.gif",
+      "reason": "Maps to a single-leg press, not a Romanian deadlift hinge."
+    },
+    {
+      "name": "Plank Jacks",
+      "slug": "plank-jacks",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/plank.gif",
+      "reason": "Maps to a generic plank instead of plank jacks."
+    }
+  ],
+  "failed": [
+    {
+      "name": "Cable Crossover",
+      "slug": "cable-crossover",
+      "sourceUrl": "https://github.com/omercotkd/exercises-gifs/raw/main/assets/0166.gif",
+      "error": "Request failed with status code 404"
+    },
+    {
+      "name": "Snatch Grip Shrug",
+      "slug": "snatch-grip-shrug",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/04/Barbell-Snatch-Grip-Shrug.gif",
+      "error": "Request failed with status code 404"
+    },
+    {
+      "name": "Bird Dog",
+      "slug": "bird-dog",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Bird-Dog.gif",
+      "error": "Request failed with status code 404"
+    },
+    {
+      "name": "Toes to Bar",
+      "slug": "toes-to-bar",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/05/Toes-To-Bar.gif",
+      "error": "Request failed with status code 404"
+    },
+    {
+      "name": "Plank",
+      "slug": "plank",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/front-plank.gif",
+      "error": "Request failed with status code 404"
+    },
+    {
+      "name": "Hollow Hold",
+      "slug": "hollow-hold",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2022/02/Hollow-Hold.gif",
+      "error": "Request failed with status code 404"
+    },
+    {
+      "name": "Ab Wheel Rollout",
+      "slug": "ab-wheel-rollout",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Ab-Wheel-Rollout.gif",
+      "error": "Request failed with status code 404"
+    },
+    {
+      "name": "Woodchopper",
+      "slug": "woodchopper",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/04/Cable-Kneeling-Wood-Chop.gif",
+      "error": "Request failed with status code 404"
+    },
+    {
+      "name": "Hip Thrust",
+      "slug": "hip-thrust",
+      "sourceUrl": "https://github.com/omercotkd/exercises-gifs/raw/main/assets/1059.gif",
+      "error": "Request failed with status code 404"
+    },
+    {
+      "name": "Hiking",
+      "slug": "hiking",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2022/02/Walking.gif",
+      "error": "Request failed with status code 404"
+    },
+    {
+      "name": "Cycling",
+      "slug": "cycling",
+      "sourceUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/06/Stationary-Bike.gif",
+      "error": "Request failed with status code 404"
+    }
+  ],
+  "missing": []
+}
