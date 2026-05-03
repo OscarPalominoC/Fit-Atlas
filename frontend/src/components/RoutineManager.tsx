@@ -102,7 +102,7 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
       const newBlocks = [...editingRoutine.blocks];
       const superset = { ...newBlocks[activeSupersetIndex] };
       superset.exercises = [...superset.exercises, {
-        exerciseId: exercise.name,
+        exercise_id: exercise.name,
         reps: 10,
         weight: 0,
         isCardio
@@ -114,7 +114,7 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
         ...editingRoutine,
         blocks: [...editingRoutine.blocks, {
           type: 'exercise',
-          exerciseId: exercise.name,
+          exercise_id: exercise.name,
           sets: 3,
           reps: 10,
           weight: 0,
@@ -236,7 +236,7 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
                               {i + 1}
                             </div>
                             <div>
-                              <span className="font-black text-base sm:text-lg block break-words">{block.type === 'superset' ? t.superset : block.exerciseId}</span>
+                              <span className="font-black text-base sm:text-lg block break-words">{block.type === 'superset' ? t.superset : block.exercise_id}</span>
                               {block.type === 'superset' && activeSupersetIndex === i && (
                                 <span className="text-[10px] font-black text-brand-secondary uppercase tracking-widest">Active Focus</span>
                               )}
@@ -313,7 +313,7 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
                             <div className="space-y-3">
                               {block.exercises.map((ex: any, exIndex: number) => (
                                 <div key={exIndex} className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col sm:flex-row justify-between sm:items-center gap-3 min-w-0">
-                                  <span className="font-bold break-words">{ex.exerciseId}</span>
+                                  <span className="font-bold break-words">{ex.exercise_id}</span>
                                   <div className="flex flex-wrap gap-4">
                                     {!ex.isCardio ? (
                                       <>
@@ -420,7 +420,8 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
                 </div>
               </div>
 
-              <div className="min-h-[360px] sm:h-[400px] relative">
+              <div className="relative">
+
                 <MuscleMap 
                   selectedMuscles={selectedMuscles}
                   onSelectMuscle={(id) => setSelectedMuscles(prev => prev.includes(id) ? prev.filter(m => m !== id) : [id])}
@@ -509,9 +510,41 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
                   </div>
                 </div>
                 <h3 className="text-xl sm:text-2xl font-black mb-2 heading-premium break-words">{routine.name}</h3>
-                <p className="text-text-secondary text-sm font-bold uppercase tracking-widest mb-6">
+                <p className="text-text-secondary text-sm font-bold uppercase tracking-widest mb-4">
                   {routine.blocks.length} {t.blocks} • {routine.difficulty}/5 {t.difficulty}
                 </p>
+
+                {/* Exercise details */}
+                <div className="space-y-2 mb-6">
+                  {routine.blocks.map((block: any, i: number) => (
+                    <div key={i} className={`p-3 rounded-xl text-xs ${block.type === 'superset' ? 'bg-brand-secondary/5 border border-brand-secondary/10' : 'bg-white/[0.03] border border-white/5'}`}>
+                      {block.type === 'superset' ? (
+                        <div>
+                          <span className="font-black text-brand-secondary uppercase tracking-widest text-[10px]">{t.superset}</span>
+                          <div className="mt-1 space-y-1">
+                            {block.exercises?.map((ex: any, j: number) => (
+                              <p key={j} className="text-text-secondary font-medium flex justify-between">
+                                <span className="truncate">{ex.exercise_id}</span>
+                                <span className="text-white/30 ml-2 shrink-0">{ex.reps || 10} reps</span>
+                              </p>
+                            ))}
+                          </div>
+                          <p className="text-white/20 mt-1">{block.sets || 3} {t.sets} • {block.rest_seconds || 120}s {t.restPeriod.toLowerCase()}</p>
+                        </div>
+                      ) : (
+                        <div className="flex justify-between items-center gap-2">
+                          <span className="font-bold text-text-secondary truncate">{block.exercise_id}</span>
+                          <span className="text-white/30 shrink-0">
+                            {block.isCardio
+                              ? `${block.time_minutes || 30} min`
+                              : `${block.sets || 3}×${block.reps || 10} @ ${block.weight || 0}kg`
+                            }
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
               
               <button 
@@ -540,8 +573,12 @@ const RoutineExerciseItem = ({ ex, language, onAdd }: { ex: any, language: strin
           <div className="min-w-0">
             <p className="font-bold group-hover:text-brand-primary transition-colors truncate">{ex.name}</p>
             <p className="text-[10px] text-text-secondary uppercase tracking-widest mb-1">
-              {ex.primary_muscles.map((m: string) => languages[language].muscles[m.toLowerCase() as keyof typeof languages['en']['muscles']] || m).join(', ')}
+              <span className="text-brand-primary">{ex.primary_muscles.map((m: string) => (languages[language] as any).muscles[m.toLowerCase()] || m).join(', ')}</span>
+              {ex.secondary_muscles && ex.secondary_muscles.length > 0 && (
+                <span className="text-white/30"> • {ex.secondary_muscles.map((m: string) => (languages[language] as any).muscles[m.toLowerCase()] || m).join(', ')}</span>
+              )}
             </p>
+
             {!expanded && instructions && instructions.length > 0 && (
               <p className="text-[10px] text-text-secondary/50 italic line-clamp-1">{instructions[0]}</p>
             )}

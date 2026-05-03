@@ -41,6 +41,12 @@ export const completeSession = async (sessionId: string, sessionData: any) => {
   return response.data;
 };
 
+export const deleteSession = async (sessionId: string) => {
+  const response = await api.delete(`/sessions/${sessionId}`);
+  return response.data;
+};
+
+
 export const getSessions = async (userId: string) => {
   const response = await api.get('/sessions/', { params: { user_id: userId } });
   return response.data;
@@ -60,3 +66,9 @@ export const updateProfile = async (userId: string, data: any) => {
   const response = await api.put(`/auth/user/${userId}`, data);
   return response.data;
 };
+
+export const getMe = async (userId: string) => {
+  const response = await api.get(`/auth/me?user_id=${userId}`);
+  return response.data;
+};
+

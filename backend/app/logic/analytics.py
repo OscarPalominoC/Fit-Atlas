@@ -91,32 +91,41 @@ async def get_muscle_recovery_states(user_id: str) -> Dict[str, dict]:
     # Get all muscles known to the system
     all_muscles = ANTERIOR_MUSCLES | POSTERIOR_MUSCLES | CORE_MUSCLES
     
-    # Get last training time for each muscle
-    sessions = await WorkoutSession.find(WorkoutSession.user_id == user_id).sort(-WorkoutSession.started_at).to_list()
+    # 1. Fetch persistent recovery records
+    recovery_records = await MuscleRecovery.find(MuscleRecovery.user_id == user_id).to_list()
+    recovery_map = {r.muscle: r for r in recovery_records}
     
-    # Initialize last training times
-    last_trained: Dict[str, datetime] = {}
-    
-    # Collect exercise info
-    exercise_ids = set()
-    for session in sessions:
-        for ex in session.completed_exercises:
-            exercise_ids.add(ex.exercise_id)
-    
-    exercises = await Exercise.find(In(Exercise.id, list(exercise_ids))).to_list()
-    exercise_map = {str(ex.id): ex for ex in exercises}
-    
-    for session in sessions:
-        for completed_ex in session.completed_exercises:
-            ex_data = exercise_map.get(completed_ex.exercise_id)
-            if not ex_data:
-                continue
-            
-            muscles = set(ex_data.primary_muscles) | set(ex_data.secondary_muscles)
-            for muscle in muscles:
-                if muscle not in last_trained:
-                    last_trained[muscle] = session.completed_at
-                    
+    # 2. If no records, fallback to scanning last sessions to initialize
+    if not recovery_records:
+        sessions = await WorkoutSession.find(WorkoutSession.user_id == user_id).sort(-WorkoutSession.started_at).limit(10).to_list()
+        # Collect exercise info
+        exercise_ids = set()
+        for session in sessions:
+            for ex in session.completed_exercises:
+                exercise_ids.add(ex.exercise_id)
+        
+        exercises = await Exercise.find(In(Exercise.id, list(exercise_ids))).to_list()
+        exercise_map = {str(ex.id): ex for ex in exercises}
+        
+        last_trained: Dict[str, datetime] = {}
+        for session in sessions:
+            for completed_ex in session.completed_exercises:
+                ex_data = exercise_map.get(completed_ex.exercise_id)
+                if not ex_data: continue
+                muscles = set(ex_data.primary_muscles) | set(ex_data.secondary_muscles)
+                for muscle in muscles:
+                    if muscle.lower() not in last_trained:
+                        last_trained[muscle.lower()] = session.completed_at or session.started_at
+        
+        # Create initial records
+        for muscle, l_time in last_trained.items():
+            hours_since = (datetime.now() - l_time).total_seconds() / 3600
+            initial_fatigue = max(0, 3 - (hours_since / (RECOVERY_HOURS/3))) # 3 levels, decay over RECOVERY_HOURS
+            if initial_fatigue > 0:
+                rec = MuscleRecovery(user_id=user_id, muscle=muscle, fatigue_score=initial_fatigue, recovery_score=0, status="recovering")
+                await rec.save()
+                recovery_map[muscle] = rec
+
     states = {}
     now = datetime.now()
     
@@ -128,22 +137,23 @@ async def get_muscle_recovery_states(user_id: str) -> Dict[str, dict]:
     }
     
     for muscle in all_muscles:
-        last_time = last_trained.get(muscle)
+        record = recovery_map.get(muscle)
         
-        if not last_time:
+        if not record:
             states[muscle] = {**MUSCLE_STATES_CONFIG["recovered"], "key": "recovered"}
             continue
             
-        hours_since = (now - last_time).total_seconds() / 3600
+        hours_since = (now - record.updated_at).total_seconds() / 3600
         
-        # Simple linear decay of fatigue
-        fatigue_percent = max(0, 100 - (hours_since / RECOVERY_HOURS) * 100)
+        # Apply decay to the stored fatigue score
+        # RECOVERY_HOURS is for full 100% (level 3) to 0% decay
+        decayed_score = max(0, record.fatigue_score - (hours_since / (RECOVERY_HOURS/3)))
         
-        if fatigue_percent > 75:
+        if decayed_score >= 2.5:
             state_key = "high_fatigue"
-        elif fatigue_percent > 50:
+        elif decayed_score >= 1.5:
             state_key = "moderate_fatigue"
-        elif fatigue_percent > 20:
+        elif decayed_score >= 0.5:
             state_key = "light_fatigue"
         else:
             state_key = "recovered"
@@ -151,3 +161,4 @@ async def get_muscle_recovery_states(user_id: str) -> Dict[str, dict]:
         states[muscle] = {**MUSCLE_STATES_CONFIG[state_key], "key": state_key}
         
     return states
+

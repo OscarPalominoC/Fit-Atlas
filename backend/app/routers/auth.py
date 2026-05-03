@@ -36,7 +36,16 @@ async def register(user_data: UserRegister):
     return {
         "access_token": access_token, 
         "token_type": "bearer",
-        "user": {"id": str(user.id), "name": user.name, "email": user.email}
+        "user": {
+            "id": str(user.id), 
+            "name": user.name, 
+            "email": user.email,
+            "level": user.level,
+            "xp": user.xp,
+            "weight": user.weight,
+            "height": user.height,
+            "created_at": user.created_at.isoformat() if user.created_at else None
+        }
     }
 
 @router.post("/login", response_model=Token)
@@ -53,20 +62,53 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return {
         "access_token": access_token, 
         "token_type": "bearer",
-        "user": {"id": str(user.id), "name": user.name, "email": user.email}
+        "user": {
+            "id": str(user.id), 
+            "name": user.name, 
+            "email": user.email,
+            "level": user.level,
+            "xp": user.xp,
+            "weight": user.weight,
+            "height": user.height,
+            "created_at": user.created_at.isoformat() if user.created_at else None
+        }
     }
+
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
     email: Optional[str] = None
     password: Optional[str] = None
     current_password: Optional[str] = None
+    weight: Optional[float] = None
+    height: Optional[float] = None
+
+@router.get("/me")
+async def get_me(user_id: str):
+    user = await User.get(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {
+        "id": str(user.id), 
+        "name": user.name, 
+        "email": user.email,
+        "level": user.level,
+        "xp": user.xp,
+        "weight": user.weight,
+        "height": user.height,
+        "created_at": user.created_at.isoformat()
+    }
 
 @router.put("/user/{user_id}")
 async def update_user(user_id: str, data: UserUpdate):
     user = await User.get(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    # Security check for sensitive changes (email or password)
+    if (data.email and data.email != user.email) or data.password:
+        if not data.current_password or not verify_password(data.current_password, user.hashed_password):
+            raise HTTPException(status_code=400, detail="Invalid current password required for sensitive changes")
     
     if data.email and data.email != user.email:
         existing = await User.find_one(User.email == data.email)
@@ -76,11 +118,26 @@ async def update_user(user_id: str, data: UserUpdate):
     
     if data.name:
         user.name = data.name
+
+    if data.weight is not None:
+        user.weight = data.weight
+
+    if data.height is not None:
+        user.height = data.height
         
     if data.password:
-        if not data.current_password or not verify_password(data.current_password, user.hashed_password):
-            raise HTTPException(status_code=400, detail="Invalid current password")
         user.hashed_password = get_password_hash(data.password)
         
     await user.save()
-    return {"id": str(user.id), "name": user.name, "email": user.email}
+    return {
+        "id": str(user.id), 
+        "name": user.name, 
+        "email": user.email,
+        "level": user.level,
+        "xp": user.xp,
+        "weight": user.weight,
+        "height": user.height,
+        "created_at": user.created_at.isoformat() if user.created_at else None
+    }
+
+

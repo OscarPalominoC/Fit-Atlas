@@ -9,7 +9,10 @@ class User(Document):
     hashed_password: str
     level: int = 1
     xp: int = 0
+    weight: Optional[float] = None  # in kg
+    height: Optional[float] = None  # in cm
     created_at: datetime = Field(default_factory=datetime.now)
+
 
     class Settings:
         name = "users"
@@ -91,12 +94,19 @@ class CompletedExercise(BaseModel):
 class WorkoutSession(Document):
     user_id: str
     routine_id: Optional[str] = None
+    routine_name: Optional[str] = None
     duration_seconds: int
+
     total_volume: float
-    difficulty_score: float
+    difficulty_score: float = 0.0
+    earned_xp: int = 0
+    muscle_impact: Optional[dict] = None # Map of muscle_id -> fatigue_level
     started_at: datetime
+
+
     completed_at: datetime = Field(default_factory=datetime.now)
     completed_exercises: List[CompletedExercise]
+
 
     class Settings:
         name = "workout_sessions"

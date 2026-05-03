@@ -11,7 +11,10 @@ import RoutineManager from './components/RoutineManager'
 import ExerciseIcon from './components/ExerciseIcon'
 import ExerciseModal from './components/ExerciseModal'
 import Settings from './components/Settings'
-import { getSessions, getRoutines, startSession, completeSession } from './api/client'
+import WorkoutSummary from './components/WorkoutSummary'
+
+import { getSessions, getRoutines, startSession, completeSession, deleteSession } from './api/client'
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from './store/authStore'
 import { useSyncStore } from './store/syncStore'
@@ -25,6 +28,8 @@ const App: React.FC = () => {
   const [page, setPage] = useState<'landing' | 'about' | 'auth' | 'app'>('landing')
   const [activeRoutine, setActiveRoutine] = useState<any>(null)
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
+  const [lastSessionResult, setLastSessionResult] = useState<any>(null)
+
   const [language, setLanguage] = useState<'en' | 'es'>('es')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>([])
@@ -124,37 +129,95 @@ const App: React.FC = () => {
       if (isOffline) {
         return { id: `temp-session-${Date.now()}` };
       }
-      return startSession(user?.id || '', routine.id);
+      return startSession(user?.id || '', routine.id || routine._id);
+
     },
     onSuccess: (session, routine) => {
+      const sid = session.id || session._id || session._id?.$oid;
+      console.log("Workout started. Session ID:", sid);
       setActiveRoutine(routine)
-      setActiveSessionId(session.id)
+      setActiveSessionId(sid)
       setActiveTab('live')
     }
   })
 
+
   const completeMutation = useMutation({
     mutationFn: async (data: any) => {
+      if (!data) return; 
+      console.log("Completing session. Active ID state:", activeSessionId);
+      
       if (isOffline) {
+        // LOCAL INTERPRETATION (Offline Mode)
+        const totalVolume = data.completed_exercises.reduce((acc: number, ex: any) => 
+          acc + (ex.weight || 0) * (ex.reps?.reduce((a: number, b: number) => a + b, 0) || 0), 0
+        );
+
+        const earned_xp = Math.floor((data.duration_seconds / 60) * 10 + (totalVolume / 100));
+
+        const muscle_impact: Record<string, number> = {};
+        data.completed_exercises.forEach((ex: any) => {
+          const exData = Object.values(exercisesDict).find((e: any) => e.name === ex.exercise_id) as any;
+          if (exData) {
+            exData.primary_muscles.forEach((m: string) => muscle_impact[m.toLowerCase()] = 3);
+            exData.secondary_muscles.forEach((m: string) => muscle_impact[m.toLowerCase()] = Math.max(muscle_impact[m.toLowerCase()] || 0, 2));
+          }
+        });
+
+
+        const offlineResult = {
+          ...data,
+          total_volume: totalVolume,
+          earned_xp: earned_xp,
+          muscle_impact: muscle_impact,
+          status: 'offline_pending'
+        };
+
         addPendingAction({
           id: `session-sync-${Date.now()}`,
           type: 'COMPLETE_SESSION',
-          data: { sessionId: activeSessionId, sessionData: { ...data, user_id: user?.id } }
+          data: { sessionId: activeSessionId, sessionData: { ...offlineResult, user_id: user?.id } }
         });
-        return;
+        
+        return offlineResult;
       }
-      return completeSession(activeSessionId || '', data);
+      
+      const sid = activeSessionId || 'new';
+      console.log("Final SID for request:", sid);
+      return completeSession(sid, { ...data, user_id: user?.id });
     },
-    onSuccess: () => {
-      setActiveTab('dashboard')
-      setActiveSessionId(null)
-      queryClient.invalidateQueries({ queryKey: ['sessions'] })
+    onSuccess: (result) => {
+      setLastSessionResult(result || { status: 'synced' });
+      setActiveTab('dashboard');
+      setActiveSessionId(null);
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+    },
+    onError: (err) => {
+      console.error("Mutation failed:", err);
+      alert("Error saving session. Check your connection.");
     }
-  })
+  });
+
+
+  const handleWorkoutComplete = (data: any) => {
+    if (data) {
+      completeMutation.mutate(data);
+    } else {
+      // Discard session
+      if (activeSessionId && !activeSessionId.startsWith('temp-') && !isOffline) {
+        deleteSession(activeSessionId).catch(console.error);
+      }
+      setActiveTab('dashboard');
+      setActiveSessionId(null);
+      setActiveRoutine(null);
+    }
+  };
+
 
   const handleStartWorkout = (routine: any) => {
     startMutation.mutate(routine)
   }
+
 
   if (page === 'landing') return <Landing language={language} onLanguageChange={setLanguage} onGetStarted={() => setPage('auth')} onViewAbout={() => setPage('about')} />
   if (page === 'about') return <About language={language} onBack={() => setPage('landing')} />
@@ -416,12 +479,14 @@ const App: React.FC = () => {
                             key={ex.id} 
                             name={ex.name} 
                             muscle={ex.primary_muscles.map((m: string) => t.muscles[m.toLowerCase() as keyof typeof t.muscles] || m).join(', ')} 
+                            secondaryMuscles={ex.secondary_muscles.map((m: string) => t.muscles[m.toLowerCase() as keyof typeof t.muscles] || m).join(', ')}
                             equipment={ex.equipment.map((eq: string) => eqT[eq] || eq).join(', ') || 'Bodyweight'} 
                             difficulty={ex.difficulty <= 2 ? t.difficulty.easy : ex.difficulty <= 4 ? t.difficulty.medium : t.difficulty.hard} 
                             instructions={ex.translations?.[language]?.instructions}
                             mediaGif={ex.media?.gif}
                             language={language}
                           />
+
                         ))}
                       </div>
                     )}
@@ -473,7 +538,17 @@ const App: React.FC = () => {
             <WorkoutLive 
               routine={activeRoutine} 
               language={language}
-              onComplete={(data) => completeMutation.mutate(data)} 
+              onComplete={handleWorkoutComplete} 
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {lastSessionResult && (
+            <WorkoutSummary 
+              session={lastSessionResult} 
+              language={language} 
+              onClose={() => setLastSessionResult(null)} 
             />
           )}
         </AnimatePresence>
@@ -481,6 +556,7 @@ const App: React.FC = () => {
     </div>
   )
 }
+
 
 const NavItem = ({ icon, label, active = false, onClick, className = "" }: { icon: React.ReactNode, label: string, active?: boolean, onClick?: () => void, className?: string }) => (
   <div 
@@ -530,7 +606,7 @@ const StatCard = ({ label, value, color, trend, language }: { label: string, val
 }
 
 
-const ExerciseListItem = ({ name, muscle, equipment, difficulty, instructions, mediaGif, language }: { name: string, muscle: string, equipment: string, difficulty: string, instructions?: string[], mediaGif?: string | null, language: 'en' | 'es' }) => {
+const ExerciseListItem = ({ name, muscle, secondaryMuscles, equipment, difficulty, instructions, mediaGif, language }: { name: string, muscle: string, secondaryMuscles?: string, equipment: string, difficulty: string, instructions?: string[], mediaGif?: string | null, language: 'en' | 'es' }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
   const t = languages[language];
   
@@ -565,6 +641,7 @@ const ExerciseListItem = ({ name, muscle, equipment, difficulty, instructions, m
         onClose={() => setModalOpen(false)}
         name={name}
         muscle={muscle}
+        secondaryMuscles={secondaryMuscles}
         equipment={equipment}
         difficulty={difficulty}
         instructions={instructions}
@@ -574,5 +651,6 @@ const ExerciseListItem = ({ name, muscle, equipment, difficulty, instructions, m
     </>
   );
 }
+
 
 export default App

@@ -9,6 +9,7 @@ interface ExerciseModalProps {
   onClose: () => void;
   name: string;
   muscle: string;
+  secondaryMuscles?: string;
   equipment: string;
   difficulty: string;
   instructions?: string[];
@@ -21,6 +22,7 @@ const ExerciseModal: React.FC<ExerciseModalProps> = ({
   onClose,
   name,
   muscle,
+  secondaryMuscles,
   equipment,
   difficulty,
   instructions,
@@ -30,17 +32,20 @@ const ExerciseModal: React.FC<ExerciseModalProps> = ({
   const t = {
     en: {
       equipment: "Equipment",
-      muscles: "Target Muscles",
+      primary: "Target Muscles",
+      secondary: "Supporting Muscles",
       instructions: "Instructions",
       difficulty: "Difficulty"
     },
     es: {
       equipment: "Equipo",
-      muscles: "Músculos",
+      primary: "Músculos Principales",
+      secondary: "Músculos Secundarios",
       instructions: "Instrucciones",
       difficulty: "Dificultad"
     }
   }[language];
+
 
   return createPortal(
     <AnimatePresence>
@@ -110,11 +115,25 @@ const ExerciseModal: React.FC<ExerciseModalProps> = ({
 
                 {/* Info Section */}
                 <div className="space-y-8">
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] mb-3">{t.primary}</h4>
+                      <p className="text-brand-primary font-bold">{muscle}</p>
+                    </div>
+                    {secondaryMuscles && (
+                      <div>
+                        <h4 className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] mb-3">{t.secondary}</h4>
+                        <p className="text-brand-secondary font-bold">{secondaryMuscles}</p>
+                      </div>
+                    )}
+                  </div>
+
                   <div>
                     <h4 className="text-xs font-black text-text-secondary uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                       <Info size={16} className="text-brand-accent" />
                       {t.instructions}
                     </h4>
+
                     <div className="space-y-4">
                       {instructions?.map((step, i) => (
                         <div key={i} className="flex gap-4 group">

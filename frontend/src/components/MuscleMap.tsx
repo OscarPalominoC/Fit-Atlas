@@ -50,27 +50,14 @@ const MuscleMap: React.FC<MuscleMapProps> = ({
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-5 md:gap-12 items-center w-full min-w-0">
-        {/* Left Side Labels */}
-        <div className="hidden md:flex flex-col gap-4 text-right">
-          {currentBody.slice(0, Math.ceil(currentBody.length / 2)).map((muscle) => (
-            <div 
-              key={muscle.slug}
-              className={`transition-all duration-300 cursor-pointer p-2 rounded-lg ${selectedMuscles.includes(muscle.slug) ? 'text-brand-primary font-bold bg-brand-primary/5' : 'text-text-secondary hover:text-white'}`}
-              onClick={() => handleMuscleClick(muscle.slug)}
-            >
-              {t.muscles[muscle.slug as keyof typeof t.muscles] || muscle.slug}
-            </div>
-          ))}
-        </div>
-
+      <div className="flex flex-col items-center justify-center gap-8 lg:gap-12 w-full min-w-0">
         {/* Anatomical Map */}
-        <div className="relative w-full max-w-[300px] sm:max-w-[360px] lg:max-w-[400px] aspect-[2/3] glass-card rounded-3xl sm:rounded-[48px] lg:rounded-[60px] p-4 sm:p-6 lg:p-8 flex items-center justify-center overflow-hidden shadow-2xl border border-white/5 group mx-auto">
-          <div className="absolute inset-0 bg-gradient-to-b from-brand-primary/5 to-transparent pointer-events-none" />
+        <div className="relative w-full max-w-[320px] sm:max-w-[400px] h-[500px] sm:h-[600px] lg:h-[700px] glass-card rounded-[40px] sm:rounded-[60px] p-6 sm:p-10 flex items-center justify-center overflow-hidden shadow-2xl border border-white/5 group">
+          <div className="absolute inset-0 bg-gradient-to-b from-brand-primary/10 to-transparent pointer-events-none" />
           
           <svg 
             viewBox={viewBox} 
-            className="w-full h-full drop-shadow-[0_0_30px_rgba(59,130,246,0.1)] relative z-0 transition-all duration-500"
+            className="w-full h-full drop-shadow-[0_0_40px_rgba(59,130,246,0.15)] relative z-0 transition-all duration-500"
           >
             <defs>
               <filter id="muscleGlow" x="-20%" y="-20%" width="140%" height="140%">
@@ -100,16 +87,16 @@ const MuscleMap: React.FC<MuscleMapProps> = ({
                           initial={false}
                           animate={{ 
                             fill: isSelected 
-                              ? 'rgba(59, 130, 246, 0.6)' 
+                              ? 'rgba(59, 130, 246, 0.7)' 
                               : state 
-                                ? `${state.color}40` // 40 is alpha in hex (approx 25%)
-                                : 'rgba(255, 255, 255, 0.05)',
+                                ? `${state.color}50` 
+                                : 'rgba(255, 255, 255, 0.08)',
                             stroke: isSelected 
                               ? '#3b82f6' 
                               : state 
                                 ? state.color 
-                                : 'rgba(255, 255, 255, 0.15)',
-                            strokeWidth: isSelected ? 2 : 1
+                                : 'rgba(255, 255, 255, 0.25)',
+                            strokeWidth: isSelected ? 2.5 : 1.5
                           }}
                           whileHover={{ 
                             fill: state ? `${state.color}60` : 'rgba(59, 130, 246, 0.3)', 
@@ -128,51 +115,31 @@ const MuscleMap: React.FC<MuscleMapProps> = ({
           </svg>
         </div>
 
-        {/* Right Side Labels & Cardio */}
-        <div className="flex flex-col gap-4">
-          <div className="hidden md:flex flex-col gap-4 text-left">
-            {currentBody.slice(Math.ceil(currentBody.length / 2)).map((muscle) => (
+        {/* Labels & Cardio Section */}
+        <div className="w-full max-w-4xl">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {currentBody.map((muscle) => (
               <div 
                 key={muscle.slug}
-                className={`transition-all duration-300 cursor-pointer p-2 rounded-lg ${selectedMuscles.includes(muscle.slug) ? 'text-brand-primary font-bold bg-brand-primary/5' : 'text-text-secondary hover:text-white'}`}
+                className={`transition-all duration-300 cursor-pointer p-3 rounded-xl border text-center text-[10px] font-black uppercase tracking-widest ${selectedMuscles.includes(muscle.slug) ? 'text-brand-primary border-brand-primary bg-brand-primary/10 shadow-lg' : 'text-text-secondary border-white/5 bg-white/5 hover:text-white hover:bg-white/10'}`}
                 onClick={() => handleMuscleClick(muscle.slug)}
               >
                 {t.muscles[muscle.slug as keyof typeof t.muscles] || muscle.slug}
               </div>
             ))}
-          </div>
-
-          {/* Cardio Section */}
-          <div className="mt-4 md:mt-8 pt-4 md:pt-8 border-t border-white/5">
             <div 
               onClick={() => handleMuscleClick('cardio')}
-              className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl cursor-pointer transition-all duration-300 border ${selectedMuscles.includes('cardio') ? 'bg-red-500/10 border-red-500/50 text-red-500' : 'bg-white/5 border-white/10 text-text-secondary hover:text-white hover:bg-white/10'}`}
+              className={`flex items-center justify-center gap-2 p-3 rounded-xl cursor-pointer transition-all duration-300 border ${selectedMuscles.includes('cardio') ? 'bg-red-500/10 border-red-500/50 text-red-500' : 'bg-white/5 border-white/10 text-text-secondary hover:text-white hover:bg-white/10'}`}
             >
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${selectedMuscles.includes('cardio') ? 'bg-red-500 text-white shadow-lg shadow-red-500/30' : 'bg-white/10'}`}>
-                <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
+              <div className={`w-5 h-5 rounded flex items-center justify-center ${selectedMuscles.includes('cardio') ? 'bg-red-500 text-white' : 'bg-white/10'}`}>
+                <svg viewBox="0 0 24 24" className="w-3 h-3 fill-current">
                   <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                 </svg>
               </div>
-              <div>
-                <div className="font-black uppercase tracking-normal text-lg">{t.muscles.cardio}</div>
-                <div className="text-[10px] opacity-60 font-medium">Endurance & Heart Rate</div>
-              </div>
+              <span className="text-[10px] font-black uppercase tracking-widest truncate">{t.muscles.cardio}</span>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Mobile labels */}
-      <div className="flex md:hidden flex-wrap justify-center gap-2 mt-2">
-        {currentBody.map(muscle => (
-          <span 
-            key={muscle.slug}
-            onClick={() => handleMuscleClick(muscle.slug)}
-            className={`px-3 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest cursor-pointer transition-all ${selectedMuscles.includes(muscle.slug) ? 'bg-brand-primary text-white shadow-lg' : 'bg-white/5 text-text-secondary'}`}
-          >
-            {t.muscles[muscle.slug as keyof typeof t.muscles] || muscle.slug}
-          </span>
-        ))}
       </div>
     </div>
   );
