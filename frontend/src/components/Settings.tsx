@@ -3,7 +3,7 @@ import { useAuthStore } from '../store/authStore';
 import { updateProfile, getMe } from '../api/client';
 import { languages } from '../languages';
 import { motion } from 'framer-motion';
-import { User, Mail, Shield, Save, LogOut, Scale, Ruler, Activity, Info, Calendar, Lock, Key, Check } from 'lucide-react';
+import { User, Shield, Save, LogOut, Scale, Ruler, Activity, Calendar, Lock, Key } from 'lucide-react';
 
 interface SettingsProps {
   language: 'en' | 'es';

@@ -352,9 +352,9 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
 
               {/* Exercise info */}
               <div className="flex items-start gap-5">
-                {exerciseData && (
+                {(exerciseData as any) && (
                   <ExerciseIcon name={activeExercise.exerciseId} mediaGif={(exerciseData as any)?.media?.gif} className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-2xl" />
-                ) as React.ReactNode}
+                )}
                 <div>
                   <div className="flex items-center gap-3 mb-2">
                     <div className="bg-brand-primary/10 p-2 rounded-lg">

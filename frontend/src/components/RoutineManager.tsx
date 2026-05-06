@@ -234,7 +234,7 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
       // New logic: Always auto-update difficulty based on calculation
       // and remove manual override capability to keep it as an internal metric.
       if (editingRoutine.difficulty !== suggested) {
-        setEditingRoutine(prev => ({ ...prev, difficulty: suggested }));
+        setEditingRoutine((prev: any) => ({ ...prev, difficulty: suggested }));
       }
     }
   }, [JSON.stringify(editingRoutine?.blocks)]);
@@ -724,9 +724,9 @@ const RoutineExerciseItem = ({ ex, language, onAdd }: { ex: any, language: strin
           <div className="min-w-0">
             <p className="font-bold group-hover:text-brand-primary transition-colors truncate">{ex.name}</p>
             <p className="text-[10px] text-text-secondary uppercase tracking-widest mb-1">
-              <span className="text-brand-primary">{ex.primary_muscles.map((m: string) => (languages[language] as any).muscles[m.toLowerCase()] || m).join(', ')}</span>
+              <span className="text-brand-primary">{ex.primary_muscles.map((m: string) => ((languages as any)[language]).muscles[m.toLowerCase()] || m).join(', ')}</span>
               {ex.secondary_muscles && ex.secondary_muscles.length > 0 && (
-                <span className="text-white/30"> • {ex.secondary_muscles.map((m: string) => (languages[language] as any).muscles[m.toLowerCase()] || m).join(', ')}</span>
+                <span className="text-white/30"> • {ex.secondary_muscles.map((m: string) => ((languages as any)[language]).muscles[m.toLowerCase()] || m).join(', ')}</span>
               )}
             </p>
 
