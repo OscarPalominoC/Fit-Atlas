@@ -72,6 +72,7 @@ class RoutineBlock(BaseModel):
     weight: float = 0
     time_minutes: int = 0
     rest_seconds: int = 90
+    is_time_based: bool = False
 
 class Routine(Document):
     user_id: str
@@ -90,6 +91,7 @@ class CompletedExercise(BaseModel):
     weight: float
     active_time: int  # seconds
     rest_time: int  # seconds
+    is_time_based: bool = False
 
 class WorkoutSession(Document):
     user_id: str

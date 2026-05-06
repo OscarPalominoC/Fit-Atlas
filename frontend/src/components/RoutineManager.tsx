@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Plus, Play, Edit2, Trash2, Dumbbell, Save, X, Search, Layers, Clock } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Reorder } from 'framer-motion';
+import { Trash2, Plus, Play, Save, X, Clock, Layers, GripVertical, Activity, Edit2, Search, Dumbbell } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getRoutines, createRoutine, deleteRoutine, updateRoutine } from '../api/client';
 import { languages } from '../languages';
@@ -26,6 +26,7 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
   const t = languages[language].routines;
   const eqT = (languages[language] as any).equipment;
   const ui = languages[language].ui;
+  const diff = languages[language].difficulty;
 
   const { data: routines } = useQuery({
     queryKey: ['routines', userId],
@@ -77,7 +78,15 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
   };
 
   const handleEdit = (routine: any) => {
-    setEditingRoutine(routine);
+    // Ensure all blocks have IDs for reordering
+    const routineWithIds = {
+      ...routine,
+      blocks: routine.blocks.map((b: any) => ({
+        ...b,
+        id: b.id || `block-${Math.random().toString(36).substr(2, 9)}`
+      }))
+    };
+    setEditingRoutine(routineWithIds);
     setSelectedMuscles([]);
     setSelectedEquipment([]);
     setView('editor');
@@ -86,6 +95,7 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
 
   const addSuperset = () => {
     const newBlocks = [...editingRoutine.blocks, {
+      id: `block-${Math.random().toString(36).substr(2, 9)}`,
       type: 'superset',
       exercises: [],
       sets: 3,
@@ -103,9 +113,10 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
       const superset = { ...newBlocks[activeSupersetIndex] };
       superset.exercises = [...superset.exercises, {
         exercise_id: exercise.name,
-        reps: 10,
+        reps: isCardio ? 0 : 10,
         weight: 0,
-        isCardio
+        time_minutes: isCardio ? 30 : 0,
+        is_time_based: isCardio
       }];
       newBlocks[activeSupersetIndex] = superset;
       setEditingRoutine({ ...editingRoutine, blocks: newBlocks });
@@ -113,14 +124,15 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
       setEditingRoutine({
         ...editingRoutine,
         blocks: [...editingRoutine.blocks, {
+          id: `block-${Math.random().toString(36).substr(2, 9)}`,
           type: 'exercise',
           exercise_id: exercise.name,
-          sets: 3,
-          reps: 10,
+          sets: isCardio ? 1 : 3,
+          reps: isCardio ? 0 : 10,
           weight: 0,
           time_minutes: isCardio ? 30 : 0,
           rest_seconds: 90,
-          isCardio
+          is_time_based: isCardio
         }]
       });
     }
@@ -151,7 +163,83 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
 
   const { isOffline, addPendingAction } = useSyncStore();
 
-  const handleSave = () => {
+  const calculateSuggestedDifficulty = (blocks: any[]) => {
+    if (blocks.length === 0) return 1;
+    
+    let totalExDifficulty = 0;
+    let totalSets = 0;
+    let totalReps = 0;
+    let totalMinutes = 0;
+    let exCount = 0;
+    let hasSuperset = false;
+
+    blocks.forEach(block => {
+      if (block.type === 'exercise') {
+        const exData = Object.values(exercisesDict).find((e: any) => e.name === block.exercise_id) as any;
+        if (exData) {
+          totalExDifficulty += exData.difficulty || 1;
+          exCount++;
+          totalSets += block.sets || 1;
+          if (block.is_time_based) {
+            totalMinutes += block.time_minutes || 0;
+          } else {
+            totalReps += (block.sets || 1) * (block.reps || 1);
+          }
+        }
+      } else if (block.type === 'superset') {
+        hasSuperset = true;
+        totalSets += block.sets || 1;
+        block.exercises.forEach((ex: any) => {
+          const exData = Object.values(exercisesDict).find((e: any) => e.name === ex.exercise_id) as any;
+          if (exData) {
+            totalExDifficulty += exData.difficulty || 1;
+            exCount++;
+            if (ex.is_time_based) {
+              totalMinutes += ex.time_minutes || 0;
+            } else {
+              totalReps += (block.sets || 1) * (ex.reps || 1);
+            }
+          }
+        });
+      }
+    });
+
+    const avgDifficulty = exCount > 0 ? totalExDifficulty / exCount : 1;
+    
+    // Impact of volume (exercises, sets and total reps)
+    const volumeScore = (exCount * 0.2) + (totalSets * 0.15) + (totalReps * 0.005);
+    
+    // Impact of cardio duration (minutes) - Exponential after 45 mins
+    const cardioScore = totalMinutes > 0 
+      ? (totalMinutes <= 45 ? (totalMinutes / 10) * 0.6 : 2.7 + ((totalMinutes - 45) / 10) * 1.2)
+      : 0;
+    
+    // Special protocols
+    const protocolScore = hasSuperset ? 0.8 : 0;
+    
+    const finalScore = avgDifficulty + volumeScore + cardioScore + protocolScore;
+    
+    // Refined thresholds for automated classification
+    if (finalScore < 2.5) return 1; // Muy Fácil
+    if (finalScore < 3.8) return 2; // Fácil
+    if (finalScore < 5.2) return 3; // Medio
+    if (finalScore < 6.8) return 4; // Difícil
+    if (finalScore < 8.5) return 5; // Élite
+    return 6; // Épico
+  };
+
+  React.useEffect(() => {
+    if (editingRoutine?.blocks) {
+      const suggested = calculateSuggestedDifficulty(editingRoutine.blocks);
+      // New logic: Always auto-update difficulty based on calculation
+      // and remove manual override capability to keep it as an internal metric.
+      if (editingRoutine.difficulty !== suggested) {
+        setEditingRoutine(prev => ({ ...prev, difficulty: suggested }));
+      }
+    }
+  }, [JSON.stringify(editingRoutine?.blocks)]);
+
+  const handleSave = async () => {
     const routineId = editingRoutine.id || editingRoutine._id;
     
     if (isOffline) {
@@ -216,22 +304,44 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
                 />
               </div>
 
+              <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-2xl w-fit border border-white/5">
+                <Activity size={14} className="text-brand-primary" />
+                <span className="text-[10px] font-black text-text-secondary uppercase tracking-widest">
+                  {ui.difficulty}: {
+                    editingRoutine.difficulty === 1 ? diff.very_easy : 
+                    editingRoutine.difficulty === 2 ? diff.easy : 
+                    editingRoutine.difficulty === 3 ? diff.medium : 
+                    editingRoutine.difficulty === 4 ? diff.hard : 
+                    editingRoutine.difficulty === 5 ? diff.elite : 
+                    diff.epic
+                  }
+                </span>
+              </div>
+
               <div className="space-y-6">
                 <h3 className="text-xl font-black heading-premium">{t.blocks}</h3>
-                <div className="space-y-6">
-                  <AnimatePresence>
+                <Reorder.Group 
+                  axis="y" 
+                  values={editingRoutine.blocks} 
+                  onReorder={(newBlocks) => setEditingRoutine({ ...editingRoutine, blocks: newBlocks })}
+                  className="space-y-6"
+                >
+                  <AnimatePresence mode="popLayout">
                     {editingRoutine.blocks.map((block: any, i: number) => (
-                      <motion.div 
-                        key={i}
-                        layout
+                      <Reorder.Item 
+                        key={block.id}
+                        value={block}
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         onClick={() => block.type === 'superset' && setActiveSupersetIndex(i)}
-                        className={`glass-sm p-4 sm:p-6 rounded-3xl border transition-all relative min-w-0 ${block.type === 'superset' ? (activeSupersetIndex === i ? 'border-brand-secondary shadow-lg shadow-brand-secondary/10' : 'border-brand-secondary/30') : 'border-white/5'}`}
+                        className={`glass-sm p-4 sm:p-6 rounded-3xl border transition-all relative min-w-0 cursor-grab active:cursor-grabbing ${block.type === 'superset' ? (activeSupersetIndex === i ? 'border-brand-secondary shadow-lg shadow-brand-secondary/10' : 'border-brand-secondary/30') : 'border-white/5'}`}
                       >
-                        <div className="flex justify-between items-center gap-3 mb-6">
+                        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
                           <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                            <div className="text-white/20 hover:text-white/40 cursor-grab active:cursor-grabbing shrink-0">
+                              <GripVertical size={20} />
+                            </div>
                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black ${block.type === 'superset' ? 'bg-brand-secondary/20 text-brand-secondary' : 'bg-brand-primary/20 text-brand-primary'}`}>
                               {i + 1}
                             </div>
@@ -242,16 +352,39 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
                               )}
                             </div>
                           </div>
-                          <button onClick={(e) => { e.stopPropagation(); removeBlock(i); }} className="text-red-400 hover:bg-red-500/10 p-2 rounded-xl transition-colors">
-                            <Trash2 size={18} />
-                          </button>
+                          
+                          <div className="flex items-center gap-3">
+                            {/* Tracking Mode Toggle */}
+                            {block.type === 'exercise' && (
+                              <div className="flex bg-white/5 p-1 rounded-xl w-fit">
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); updateBlock(i, 'is_time_based', false); }}
+                                  className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${!block.is_time_based ? 'bg-brand-primary text-white shadow-lg' : 'text-text-secondary hover:text-white'}`}
+                                >
+                                  {t.reps}
+                                </button>
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); updateBlock(i, 'is_time_based', true); }}
+                                  className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${block.is_time_based ? 'bg-brand-primary text-white shadow-lg' : 'text-text-secondary hover:text-white'}`}
+                                >
+                                  {t.time}
+                                </button>
+                              </div>
+                            )}
+
+                            <button onClick={(e) => { e.stopPropagation(); removeBlock(i); }} className="text-red-400 hover:bg-red-500/10 p-2 rounded-xl transition-colors">
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
                         </div>
 
                         {block.type === 'exercise' ? (
                           <div className="space-y-6">
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                               <div className="space-y-1">
-                                <label className="text-[10px] font-black text-text-secondary uppercase tracking-wider">{t.sets}</label>
+                                <label className="text-[10px] font-black text-text-secondary uppercase tracking-wider">
+                                  {t.sets}
+                                </label>
                                 <input 
                                   type="number" 
                                   value={block.sets} 
@@ -259,7 +392,7 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
                                   className="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-sm focus:border-brand-primary outline-none font-bold"
                                 />
                               </div>
-                              {!block.isCardio ? (
+                              {!block.is_time_based ? (
                                 <>
                                   <div className="space-y-1">
                                     <label className="text-[10px] font-black text-text-secondary uppercase tracking-wider">{t.reps}</label>
@@ -314,8 +447,17 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
                               {block.exercises.map((ex: any, exIndex: number) => (
                                 <div key={exIndex} className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col sm:flex-row justify-between sm:items-center gap-3 min-w-0">
                                   <span className="font-bold break-words">{ex.exercise_id}</span>
-                                  <div className="flex flex-wrap gap-4">
-                                    {!ex.isCardio ? (
+                                  <div className="flex flex-wrap gap-4 items-center">
+                                    {/* Toggle for superset exercise */}
+                                    <button 
+                                      onClick={(e) => { e.stopPropagation(); updateSupersetExercise(i, exIndex, 'is_time_based', !ex.is_time_based); }}
+                                      className="p-1.5 hover:bg-white/10 rounded-lg text-brand-primary transition-colors"
+                                      title="Toggle Reps/Time"
+                                    >
+                                      <Clock size={14} className={ex.is_time_based ? 'text-brand-primary' : 'text-text-secondary opacity-30'} />
+                                    </button>
+
+                                    {!ex.is_time_based ? (
                                       <>
                                         <div className="text-right">
                                           <p className="text-[8px] font-black text-text-secondary uppercase">{t.reps}</p>
@@ -359,7 +501,9 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
                             
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                               <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-                                <p className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-1">{t.sets}</p>
+                                <p className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-1">
+                                  {t.sets}
+                                </p>
                                 <input 
                                   type="number" 
                                   value={block.sets} 
@@ -382,10 +526,10 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
                             </div>
                           </div>
                         )}
-                      </motion.div>
+                      </Reorder.Item>
                     ))}
                   </AnimatePresence>
-                </div>
+                </Reorder.Group>
               </div>
 
               <button 
@@ -500,18 +644,25 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
                   <div className="bg-brand-primary/10 p-4 rounded-2xl">
                     <Dumbbell className="text-brand-primary" size={28} />
                   </div>
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => handleEdit(routine)} className="p-2 hover:bg-white/10 rounded-lg text-text-secondary">
+                  <div className="flex gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                    <button onClick={(e) => { e.stopPropagation(); handleEdit(routine); }} className="p-2 hover:bg-white/10 rounded-lg text-text-secondary">
                       <Edit2 size={18} />
                     </button>
-                    <button onClick={() => deleteMutation.mutate(rId)} className="p-2 hover:bg-red-500/10 rounded-lg text-red-400">
+                    <button onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(rId); }} className="p-2 hover:bg-red-500/10 rounded-lg text-red-400">
                       <Trash2 size={18} />
                     </button>
                   </div>
                 </div>
                 <h3 className="text-xl sm:text-2xl font-black mb-2 heading-premium break-words">{routine.name}</h3>
                 <p className="text-text-secondary text-sm font-bold uppercase tracking-widest mb-4">
-                  {routine.blocks.length} {t.blocks} • {routine.difficulty}/5 {t.difficulty}
+                  {routine.blocks.length} {t.blocks} • {
+                    routine.difficulty === 1 ? diff.very_easy : 
+                    routine.difficulty === 2 ? diff.easy : 
+                    routine.difficulty === 3 ? diff.medium : 
+                    routine.difficulty === 4 ? diff.hard : 
+                    routine.difficulty === 5 ? diff.elite : 
+                    diff.epic
+                  }
                 </p>
 
                 {/* Exercise details */}
@@ -535,8 +686,8 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
                         <div className="flex justify-between items-center gap-2">
                           <span className="font-bold text-text-secondary truncate">{block.exercise_id}</span>
                           <span className="text-white/30 shrink-0">
-                            {block.isCardio
-                              ? `${block.time_minutes || 30} min`
+                            {block.is_time_based
+                              ? `${block.sets || 1}×${block.time_minutes || 30} min`
                               : `${block.sets || 3}×${block.reps || 10} @ ${block.weight || 0}kg`
                             }
                           </span>

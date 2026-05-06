@@ -379,7 +379,12 @@ const App: React.FC = () => {
                           <p className="text-text-secondary font-medium">{t.misc.mixedProtocol}</p>
                         </div>
                         <span className="bg-brand-primary/10 text-brand-primary px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-widest border border-brand-primary/20">
-                          {routine.difficulty <= 2 ? t.difficulty.novice : routine.difficulty <= 4 ? t.difficulty.elite : t.difficulty.legend}
+                          {routine.difficulty === 1 ? t.difficulty.very_easy : 
+                           routine.difficulty === 2 ? t.difficulty.easy : 
+                           routine.difficulty === 3 ? t.difficulty.medium : 
+                           routine.difficulty === 4 ? t.difficulty.hard : 
+                           routine.difficulty === 5 ? t.difficulty.elite : 
+                           t.difficulty.epic}
                         </span>
                       </div>
                       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">

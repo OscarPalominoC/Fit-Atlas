@@ -5,6 +5,7 @@ import { languages } from '../languages';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Clock, Activity, ChevronRight, Trash2, Dumbbell } from 'lucide-react';
 
+
 interface WorkoutHistoryProps {
   userId: string;
   language: 'en' | 'es';
@@ -173,7 +174,11 @@ const WorkoutHistory: React.FC<WorkoutHistoryProps> = ({ userId, language }) => 
                           </div>
                           <div className="text-right shrink-0">
                             <p className="text-sm font-black text-white">{ex.weight}<span className="text-[10px] ml-1 opacity-40">KG</span></p>
-                            <p className="text-[10px] font-bold text-brand-primary">{Math.max(...ex.reps)} <span className="opacity-40">MAX REPS</span></p>
+                            <p className="text-[10px] font-bold text-brand-primary">
+                              {Math.max(...ex.reps)} <span className="opacity-40 uppercase">
+                                {ex.is_time_based ? t.ui.min : 'MAX REPS'}
+                              </span>
+                            </p>
                           </div>
                         </div>
                       ))}

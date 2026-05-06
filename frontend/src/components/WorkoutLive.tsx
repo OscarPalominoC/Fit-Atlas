@@ -26,6 +26,7 @@ function flattenBlocks(blocks: any[]) {
           plannedReps: ex.reps || 10,
           plannedWeight: ex.weight || 0,
           isCardio: ex.isCardio || false,
+          is_time_based: ex.is_time_based || ex.isCardio || false,
           plannedTime: ex.time_minutes || 0,
           restSeconds: exIndex === block.exercises.length - 1 ? (block.rest_seconds || 120) : 30,
           blockIndex,
@@ -41,6 +42,7 @@ function flattenBlocks(blocks: any[]) {
         plannedReps: block.reps || 10,
         plannedWeight: block.weight || 0,
         isCardio: block.isCardio || false,
+        is_time_based: block.is_time_based || block.isCardio || false,
         plannedTime: block.time_minutes || 0,
         restSeconds: block.rest_seconds || 90,
         blockIndex,
@@ -77,10 +79,10 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
   useEffect(() => {
     if (activeExercise) {
       setCurrentWeight(activeExercise.plannedWeight);
-      setCurrentReps(activeExercise.plannedReps);
+      setCurrentReps(activeExercise.is_time_based ? activeExercise.plannedTime : activeExercise.plannedReps);
       setCurrentSet(1);
     }
-  }, [activeExerciseIndex]);
+  }, [activeExerciseIndex, activeExercise]);
 
   // Global timer
   useEffect(() => {
@@ -159,6 +161,7 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
           weight: set.weight,
           active_time: seconds,
           rest_time: 0,
+          is_time_based: Object.values(flatExercises).find(fe => fe.exercise_id === set.exercise_id)?.is_time_based || false
         });
       }
       const entry = exerciseMap.get(set.exercise_id)!;
@@ -361,15 +364,15 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
                   </div>
                   <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black heading-premium tracking-normal break-words">{activeExercise.exercise_id}</h3>
                   <p className="text-text-secondary font-bold text-sm mt-2">
-                    {rt.sets}: {currentSet}/{activeExercise.plannedSets}
-                    {!activeExercise.isCardio && <> • {rt.reps}: {activeExercise.plannedReps} • {rt.weight}: {activeExercise.plannedWeight}kg</>}
-                    {activeExercise.isCardio && <> • {rt.time}: {activeExercise.plannedTime} min</>}
+                    {activeExercise.is_time_based ? t.repetitions : rt.sets}: {currentSet}/{activeExercise.plannedSets}
+                    {!activeExercise.is_time_based && <> • {rt.reps}: {activeExercise.plannedReps} • {rt.weight}: {activeExercise.plannedWeight}kg</>}
+                    {activeExercise.is_time_based && <> • {rt.time}: {activeExercise.plannedTime} min</>}
                   </p>
                 </div>
               </div>
 
               {/* Input fields */}
-              {!activeExercise.isCardio ? (
+              {!activeExercise.is_time_based ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
                   <div className="space-y-4">
                     <label className="text-xs font-black text-text-secondary uppercase tracking-[0.2em] ml-1">{t.payload} (kg)</label>
@@ -419,7 +422,7 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
                 className="w-full bg-brand-primary/10 hover:bg-brand-primary/20 border border-brand-primary/30 py-5 sm:py-6 rounded-3xl lg:rounded-[32px] font-black text-base sm:text-xl transition-all flex items-center justify-center gap-3 sm:gap-4 group text-brand-primary"
               >
                 <CheckCircle size={28} className="group-hover:scale-110 transition-transform" />
-                {t.register} — Set {currentSet}/{activeExercise.plannedSets}
+                {t.register} — {language === 'es' ? 'Serie' : 'Set'} {currentSet}/{activeExercise.plannedSets}
               </motion.button>
             </motion.div>
           </div>
@@ -516,7 +519,9 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
                     <div className="h-8 w-[1px] bg-white/10 mx-2" />
                     <div className="text-right">
                       <span className="text-2xl font-black heading-premium tracking-normal">{set.reps}</span>
-                      <span className="text-xs font-bold text-text-secondary ml-1">REPS</span>
+                      <span className="text-xs font-bold text-text-secondary ml-1">
+                        {(Object.values(exercisesDict).find((e: any) => e.name === set.exercise_id) as any)?.primary_muscles?.includes('Cardio') ? 'MIN' : 'REPS'}
+                      </span>
                     </div>
                   </div>
                 </motion.div>
