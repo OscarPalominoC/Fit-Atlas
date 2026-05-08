@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
-from app.models import WorkoutSession, Routine, User, Exercise, MuscleRecovery
+from app.models import WorkoutSession, Routine, User, Exercise, MuscleRecovery, Stretch
 
 from app.logic.difficulty import calculate_difficulty
 from app.logic.progression import calculate_session_xp, get_level_from_xp
@@ -70,7 +70,11 @@ async def complete_session(session_id: str, session_data: WorkoutSession):
     # Calculate total volume
     total_volume = 0
     for ex in session_data.completed_exercises:
-        volume = (ex.weight or 0) * sum(ex.reps or [0])
+        if ex.is_time_based:
+            # 1 second = 5kg equivalent
+            volume = sum(ex.active_times or ex.reps or [0]) * 5
+        else:
+            volume = (ex.weight or 0) * sum(ex.reps or [0])
         total_volume += volume
 
     # Update db_session
@@ -84,6 +88,7 @@ async def complete_session(session_id: str, session_data: WorkoutSession):
 
     # Update Muscle Recovery / Fatigue
     muscle_impact = {}
+    recovery_impact = {}
     for ex_data in db_session.completed_exercises:
         exercise = await Exercise.find_one(Exercise.name == ex_data.exercise_id)
         if exercise:
@@ -91,6 +96,16 @@ async def complete_session(session_id: str, session_data: WorkoutSession):
                 muscle_impact[m.lower()] = max(muscle_impact.get(m.lower(), 0), 3)
             for m in exercise.secondary_muscles:
                 muscle_impact[m.lower()] = max(muscle_impact.get(m.lower(), 0), 2)
+        else:
+            stretch = await Stretch.find_one(Stretch.name == ex_data.exercise_id)
+            if stretch:
+                bonus = stretch.recovery_score or 1
+                for m in stretch.primary_muscles:
+                    m_id = m.lower()
+                    recovery_impact[m_id] = recovery_impact.get(m_id, 0) + bonus
+                for m in stretch.secondary_muscles:
+                    m_id = m.lower()
+                    recovery_impact[m_id] = recovery_impact.get(m_id, 0) + (bonus / 2)
 
     for m_id, level in muscle_impact.items():
         recovery = await MuscleRecovery.find_one(
@@ -111,6 +126,20 @@ async def complete_session(session_id: str, session_data: WorkoutSession):
             recovery.status = "fatigued" if recovery.fatigue_score > 1 else "recovering"
             recovery.updated_at = datetime.now()
         await recovery.save()
+
+    # Apply Recovery Bonus from Stretches
+    for m_id, bonus in recovery_impact.items():
+        recovery = await MuscleRecovery.find_one(
+            MuscleRecovery.user_id == db_session.user_id,
+            MuscleRecovery.muscle == m_id.lower()
+        )
+        if recovery:
+            recovery.fatigue_score = max(0, recovery.fatigue_score - bonus)
+            recovery.status = "fatigued" if recovery.fatigue_score > 1 else "recovering"
+            if recovery.fatigue_score == 0:
+                recovery.status = "recovered"
+            recovery.updated_at = datetime.now()
+            await recovery.save()
 
 
     db_session.muscle_impact = muscle_impact
@@ -138,4 +167,16 @@ async def delete_session(session_id: str):
         raise HTTPException(status_code=404, detail="Session not found")
     await session.delete()
     return {"status": "success"}
+
+@router.patch("/{session_id}")
+async def update_session(session_id: str, data: dict):
+    session = await WorkoutSession.get(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    if "routine_name" in data:
+        session.routine_name = data["routine_name"]
+    
+    await session.save()
+    return session
 

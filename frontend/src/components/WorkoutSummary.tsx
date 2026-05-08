@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, Zap, TrendingUp, Trophy, ArrowRight, Share2 } from 'lucide-react';
-import { languages } from '../languages';
+import { CheckCircle, Zap, TrendingUp, Trophy, ArrowRight } from 'lucide-react';
 import MuscleMap from './MuscleMap';
 
 
@@ -108,34 +107,6 @@ const WorkoutSummary: React.FC<WorkoutSummaryProps> = ({ session, language, onCl
                 ))}
               </div>
 
-              <div className="mt-10 space-y-6">
-                <div className="space-y-3">
-                  <h5 className="text-[10px] font-black text-brand-secondary uppercase tracking-[0.2em]">{isEs ? 'Músculos Primarios' : 'Primary Muscles'}</h5>
-                  <div className="flex flex-wrap gap-2">
-                    {Object.entries(muscleStates)
-                      .filter(([_, state]: [string, any]) => state.level === 3)
-                      .map(([slug, _]) => (
-                        <span key={slug} className="px-3 py-1.5 bg-red-500/10 border border-red-500/20 rounded-lg text-[10px] font-bold text-red-400 uppercase tracking-widest">
-                          {languages[language].muscles[slug as keyof typeof languages['en']['muscles']] || slug}
-                        </span>
-                      ))}
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <h5 className="text-[10px] font-black text-yellow-500 uppercase tracking-[0.2em]">{isEs ? 'Músculos Secundarios' : 'Secondary Muscles'}</h5>
-                  <div className="flex flex-wrap gap-2">
-                    {Object.entries(muscleStates)
-                      .filter(([_, state]: [string, any]) => state.level === 2)
-                      .map(([slug, _]) => (
-                        <span key={slug} className="px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-[10px] font-bold text-yellow-400 uppercase tracking-widest">
-                          {languages[language].muscles[slug as keyof typeof languages['en']['muscles']] || slug}
-                        </span>
-                      ))}
-                  </div>
-                </div>
-              </div>
-
               <div className="mt-12 p-6 rounded-3xl bg-white/5 border border-white/5">
                 <p className="text-sm font-bold text-text-secondary leading-relaxed italic">
                   {isEs 
@@ -147,12 +118,13 @@ const WorkoutSummary: React.FC<WorkoutSummaryProps> = ({ session, language, onCl
             </div>
           </div>
 
-          <div className="lg:col-span-5 flex justify-center h-[500px]">
+          <div className="lg:col-span-5 flex justify-center">
             <MuscleMap 
               muscleStates={muscleStates}
               selectedMuscles={[]} 
               onSelectMuscle={() => {}}
               language={language}
+              hideLabels={true}
             />
           </div>
         </div>
@@ -164,11 +136,6 @@ const WorkoutSummary: React.FC<WorkoutSummaryProps> = ({ session, language, onCl
             className="px-12 py-5 bg-brand-primary text-white rounded-[24px] font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-brand-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
           >
             {isEs ? 'FINALIZAR PROTOCOLO' : 'FINISH PROTOCOL'} <ArrowRight size={18} />
-          </button>
-          <button 
-            className="px-10 py-5 bg-white/5 text-text-secondary rounded-[24px] font-black uppercase tracking-[0.2em] text-xs border border-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-3"
-          >
-            <Share2 size={18} /> {isEs ? 'COMPARTIR' : 'SHARE'}
           </button>
         </div>
       </div>

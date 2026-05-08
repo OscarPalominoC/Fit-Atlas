@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from app.database import init_db
-from app.routers import exercises, routines, sessions, auth, analytics
+from app.routers import exercises, routines, sessions, auth, analytics, metrics
 
 app = FastAPI(title="FitAtlas API", version="1.0.0")
 STATIC_DIR = Path(__file__).resolve().parents[1] / "static"
@@ -43,3 +43,4 @@ app.include_router(exercises.router, prefix="/exercises", tags=["Exercises"])
 app.include_router(routines.router, prefix="/routines", tags=["Routines"])
 app.include_router(sessions.router, prefix="/sessions", tags=["Sessions"])
 app.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])
+app.include_router(metrics.router, prefix="/metrics", tags=["Metrics"])

@@ -1,7 +1,15 @@
 from typing import List, Optional, Union, Annotated
 from datetime import datetime
+from enum import Enum
 from beanie import Document, Indexed
 from pydantic import BaseModel, Field
+
+class ActivityType(str, Enum):
+    STRENGTH = "strength"
+    CARDIO = "cardio"
+    STRETCH = "stretch"
+    MOBILITY = "mobility"
+    RECOVERY = "recovery"
 
 class User(Document):
     name: str
@@ -62,6 +70,34 @@ class Exercise(Document):
     class Settings:
         name = "exercises"
 
+class Stretch(Document):
+    name: str
+    slug: Annotated[str, Indexed(unique=True)]
+
+    primary_muscles: List[str]
+    secondary_muscles: List[str] = []
+
+    stretch_type: str
+    # static | dynamic | mobility | activation
+
+    body_region: str
+    # upper | lower | core | full
+
+    difficulty: int = 1
+    hold_duration_seconds: int = 30
+    unilateral: bool = False
+    
+    equipment: List[str] = []
+    tags: List[str] = []
+
+    instructions: LocalizedList = Field(default_factory=LocalizedList)
+    media: ExerciseMedia = Field(default_factory=ExerciseMedia)
+    benefits: LocalizedList = Field(default_factory=LocalizedList)
+    recovery_score: int = 1
+
+    class Settings:
+        name = "stretches"
+
 class RoutineBlock(BaseModel):
     type: str  # "exercise" or "superset"
     exercise_id: Optional[str] = None
@@ -70,7 +106,7 @@ class RoutineBlock(BaseModel):
     sets: Optional[int] = None
     reps: Optional[int] = None
     weight: float = 0
-    time_minutes: int = 0
+    time_seconds: int = 0
     rest_seconds: int = 90
     is_time_based: bool = False
 
@@ -89,8 +125,8 @@ class CompletedExercise(BaseModel):
     sets_completed: int
     reps: List[int]
     weight: float
-    active_time: int  # seconds
-    rest_time: int  # seconds
+    active_times: List[int] = [] # seconds per set
+    rest_time: int = 0 # seconds
     is_time_based: bool = False
 
 class WorkoutSession(Document):
@@ -123,3 +159,12 @@ class MuscleRecovery(Document):
 
     class Settings:
         name = "muscle_recovery"
+
+class BodyMetric(Document):
+    user_id: str
+    weight: float
+    body_fat: Optional[float] = None
+    date: datetime = Field(default_factory=datetime.now)
+
+    class Settings:
+        name = "body_metrics"

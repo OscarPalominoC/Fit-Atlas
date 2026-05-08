@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Activity, Dumbbell, Layout, Map, Settings as SettingsIcon, Search, Loader2, Play, LogOut, TrendingUp, Calendar, Plus } from 'lucide-react'
+import { Activity, Dumbbell, Layout, Map, Settings as SettingsIcon, Search, LogOut, TrendingUp, Calendar } from 'lucide-react'
 import MuscleMap from './components/MuscleMap'
 import WorkoutLive from './components/WorkoutLive'
 import Landing from './pages/Landing'
@@ -13,7 +13,7 @@ import ExerciseModal from './components/ExerciseModal'
 import Settings from './components/Settings'
 import WorkoutSummary from './components/WorkoutSummary'
 
-import { getSessions, getRoutines, startSession, completeSession, deleteSession } from './api/client'
+import { getSessions, startSession, completeSession, deleteSession } from './api/client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from './store/authStore'
@@ -21,6 +21,7 @@ import { useSyncStore } from './store/syncStore'
 import { motion, AnimatePresence } from 'framer-motion'
 import { languages } from './languages'
 import { exercises as exercisesDict } from './data/exercises'
+import { stretches as stretchesDict } from './data/stretches'
 
 const App: React.FC = () => {
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([])
@@ -33,6 +34,7 @@ const App: React.FC = () => {
   const [language, setLanguage] = useState<'en' | 'es'>('es')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>([])
+  const [atlasMode, setAtlasMode] = useState<'exercises' | 'stretches'>('exercises')
   
   const { user, logout } = useAuthStore()
   const { isOffline, setIsOffline, syncPendingActions, addPendingAction } = useSyncStore()
@@ -86,11 +88,15 @@ const App: React.FC = () => {
     })
     .sort((a: any, b: any) => a.difficulty - b.difficulty);
 
-  const { data: routines } = useQuery({
-    queryKey: ['routines', user?.id],
-    queryFn: () => getRoutines(user?.id || ''),
-    enabled: !!user?.id
-  })
+  const stretchesList = Object.values(stretchesDict)
+    .filter((st: any) => {
+      const muscleMatch = selectedMuscles.length === 0 || st.primary_muscles.some((m: string) => activeMuscleNames.includes(m));
+      const searchMatch = st.name.toLowerCase().includes(searchTerm.toLowerCase());
+      return muscleMatch && searchMatch;
+    })
+    .sort((a: any, b: any) => a.difficulty - b.difficulty);
+
+
 
   const { data: sessions } = useQuery({
     queryKey: ['sessions', user?.id],
@@ -354,65 +360,6 @@ const App: React.FC = () => {
                 <StatCard label={t.stats.intensity} value={stats.intensity} color="text-brand-primary" trend={stats.trends.intensity} language={language} />
                 <StatCard label={t.stats.load} value={stats.load} color="text-brand-accent" trend={stats.trends.load} language={language} />
               </div>
-
-              <section>
-                <div className="flex justify-between items-end gap-4 mb-6 lg:mb-8">
-                  <h3 className="text-xl sm:text-2xl font-bold heading-premium">{t.ui.routines}</h3>
-                  <button 
-                    onClick={() => setActiveTab('routines')}
-                    className="text-brand-primary font-bold text-sm hover:underline"
-                  >
-                    {t.ui.viewAll}
-                  </button>
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
-                  {routines?.slice(0, 2).map((routine: any) => (
-                    <motion.div 
-                      key={routine.id}
-                      whileHover={{ y: -8 }}
-                      onClick={() => handleStartWorkout(routine)}
-                      className="glass-card p-5 sm:p-8 rounded-3xl lg:rounded-[40px] group cursor-pointer transition-all border-white/5 hover:border-brand-primary/40"
-                    >
-                      <div className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-6">
-                        <div className="min-w-0">
-                          <h4 className="text-xl sm:text-2xl font-bold heading-premium mb-1 break-words">{routine.name}</h4>
-                          <p className="text-text-secondary font-medium">{t.misc.mixedProtocol}</p>
-                        </div>
-                        <span className="bg-brand-primary/10 text-brand-primary px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-widest border border-brand-primary/20">
-                          {routine.difficulty === 1 ? t.difficulty.very_easy : 
-                           routine.difficulty === 2 ? t.difficulty.easy : 
-                           routine.difficulty === 3 ? t.difficulty.medium : 
-                           routine.difficulty === 4 ? t.difficulty.hard : 
-                           routine.difficulty === 5 ? t.difficulty.elite : 
-                           t.difficulty.epic}
-                        </span>
-                      </div>
-                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                        <div className="flex flex-wrap gap-3 sm:gap-6 text-sm font-bold text-text-secondary">
-                          <span className="flex items-center gap-2"><Activity size={18} className="text-brand-primary" /> {routine.blocks.length} {t.ui.units}</span>
-                          <span className="flex items-center gap-2"><Loader2 size={18} className="text-brand-secondary" /> {routine.blocks.reduce((acc: number, b: any) => acc + (b.time_minutes || 0), 0) || 45} {t.ui.min}</span>
-                        </div>
-                        <div className="bg-brand-primary p-4 rounded-2xl shadow-lg shadow-brand-primary/30 group-hover:scale-110 transition-all self-start sm:self-auto">
-                          {startMutation.isPending && startMutation.variables?.id === routine.id ? (
-                            <Loader2 size={20} className="text-white animate-spin" />
-                          ) : (
-                            <Play size={20} fill="white" className="text-white" />
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                  {routines?.length === 0 && (
-                    <div 
-                      onClick={() => setActiveTab('routines')}
-                      className="col-span-full border-2 border-dashed border-white/5 rounded-3xl lg:rounded-[40px] p-8 sm:p-12 flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-white/5 transition-all"
-                    >
-                      <Plus size={32} className="text-text-secondary" />
-                      <p className="text-text-secondary font-bold">{t.routines.emptyState}</p>
-                    </div>
-                  )}
-                </div>
-              </section>
             </motion.div>
           ) : activeTab === 'atlas' ? (
             <motion.div 
@@ -433,7 +380,21 @@ const App: React.FC = () => {
                 <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-3xl lg:rounded-[48px] h-full flex flex-col min-w-0">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
                     <h3 className="text-2xl sm:text-3xl font-bold heading-premium">{t.nav.atlas}</h3>
-                    <div className="flex gap-3 w-full sm:w-auto">
+                    <div className="flex flex-wrap gap-3 w-full sm:w-auto">
+                      <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5 h-fit">
+                        <button 
+                          onClick={() => setAtlasMode('exercises')}
+                          className={`px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${atlasMode === 'exercises' ? 'bg-brand-primary text-white shadow-lg' : 'text-text-secondary hover:text-white'}`}
+                        >
+                          {language === 'es' ? 'Ejercicios' : 'Exercises'}
+                        </button>
+                        <button 
+                          onClick={() => setAtlasMode('stretches')}
+                          className={`px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${atlasMode === 'stretches' ? 'bg-brand-secondary text-white shadow-lg' : 'text-text-secondary hover:text-white'}`}
+                        >
+                          {language === 'es' ? 'Estiramientos' : 'Stretches'}
+                        </button>
+                      </div>
                       <div className="relative flex-1 sm:w-64">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
                         <input 
@@ -469,23 +430,23 @@ const App: React.FC = () => {
                   </div>
 
                   <div className="space-y-4 overflow-y-auto flex-1 lg:pr-4 custom-scrollbar">
-                    {exercisesList.length === 0 ? (
+                    {(atlasMode === 'exercises' ? exercisesList : stretchesList).length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-24 text-center">
                         <div className="bg-brand-primary/10 w-24 h-24 rounded-[32px] flex items-center justify-center mb-8 border border-brand-primary/10">
                           <Search className="text-brand-primary" size={40} />
                         </div>
                         <p className="text-xl font-bold text-white mb-2">{t.misc.noData}</p>
-                        <p className="text-text-secondary max-w-xs font-medium">No exercises match your current filters.</p>
+                        <p className="text-text-secondary max-w-xs font-medium">No {atlasMode === 'exercises' ? 'exercises' : 'stretches'} match your current filters.</p>
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 gap-4">
-                        {exercisesList.map((ex: any) => (
+                        {(atlasMode === 'exercises' ? exercisesList : stretchesList).map((ex: any) => (
                           <ExerciseListItem 
-                            key={ex.id} 
+                            key={ex.id || ex.name} 
                             name={ex.name} 
                             muscle={ex.primary_muscles.map((m: string) => t.muscles[m.toLowerCase() as keyof typeof t.muscles] || m).join(', ')} 
-                            secondaryMuscles={ex.secondary_muscles.map((m: string) => t.muscles[m.toLowerCase() as keyof typeof t.muscles] || m).join(', ')}
-                            equipment={ex.equipment.map((eq: string) => eqT[eq] || eq).join(', ') || 'Bodyweight'} 
+                            secondaryMuscles={ex.secondary_muscles?.map((m: string) => t.muscles[m.toLowerCase() as keyof typeof t.muscles] || m).join(', ')}
+                            equipment={ex.equipment?.map((eq: string) => eqT[eq] || eq).join(', ') || 'Bodyweight'} 
                             difficulty={ex.difficulty <= 2 ? t.difficulty.easy : ex.difficulty <= 4 ? t.difficulty.medium : t.difficulty.hard} 
                             instructions={ex.translations?.[language]?.instructions}
                             mediaGif={ex.media?.gif}

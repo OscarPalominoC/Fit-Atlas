@@ -2,8 +2,9 @@ import asyncio
 import json
 import os
 from app.database import init_db
-from app.models import MuscleGroup, Exercise, MovementPattern, LocalizedList, ExerciseMedia
+from app.models import MuscleGroup, Exercise, Stretch, MovementPattern, LocalizedList, ExerciseMedia
 from scripts.exercises_data import exercises_data
+from scripts.stretches_data import stretches_data
 
 try:
     from scripts.exercise_media_assets import EXERCISE_MEDIA_BY_SLUG
@@ -105,6 +106,34 @@ async def seed():
                 media=ExerciseMedia(**media_data) if media_data else ExerciseMedia()
             )
             await new_ex.insert()
+            
+    print("Seeding/Updating Stretches...")
+    for st in stretches_data:
+        slug = st["name"].lower().replace(" ", "-").replace("/", "-")
+        inst = LocalizedList(en=st["instructions"]["en"], es=st["instructions"]["es"])
+        
+        existing_st = await Stretch.find_one(Stretch.slug == slug)
+        if existing_st:
+            existing_st.instructions = inst
+            existing_st.hold_duration_seconds = st["hold_duration_seconds"]
+            existing_st.recovery_score = st["recovery_score"]
+            existing_st.media = ExerciseMedia(**st["media"])
+            await existing_st.save()
+        else:
+            new_st = Stretch(
+                name=st["name"],
+                slug=slug,
+                primary_muscles=st["primary_muscles"],
+                secondary_muscles=st["secondary_muscles"],
+                stretch_type=st["stretch_type"],
+                body_region=st["body_region"],
+                difficulty=st["difficulty"],
+                hold_duration_seconds=st["hold_duration_seconds"],
+                instructions=inst,
+                media=ExerciseMedia(**st["media"]),
+                recovery_score=st["recovery_score"]
+            )
+            await new_st.insert()
 
     print("Fetching all exercises for frontend export...")
     all_exercises = await Exercise.find_all().to_list()
@@ -144,6 +173,41 @@ async def seed():
         f.write(";\n")
     
     print(f"Database seeded/updated successfully! Frontend file saved to {frontend_path}")
+
+    print("Exporting stretches for frontend...")
+    all_stretches = await Stretch.find_all().to_list()
+    stretches_dict = {}
+    for st in all_stretches:
+        stretches_dict[str(st.id)] = {
+            "id": str(st.id),
+            "name": st.name,
+            "slug": st.slug,
+            "primary_muscles": st.primary_muscles,
+            "secondary_muscles": st.secondary_muscles,
+            "stretch_type": st.stretch_type,
+            "body_region": st.body_region,
+            "difficulty": st.difficulty,
+            "hold_duration_seconds": st.hold_duration_seconds,
+            "recovery_score": st.recovery_score,
+            "media": st.media.model_dump(),
+            "translations": {
+                "en": {
+                    "instructions": st.instructions.en
+                },
+                "es": {
+                    "instructions": st.instructions.es
+                }
+            }
+        }
+    
+    frontend_stretches_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "src", "data", "stretches.ts"))
+    with open(frontend_stretches_path, "w", encoding="utf-8") as f:
+        f.write("// Auto-generated stretches dictionary. Do not edit manually.\n")
+        f.write("export const stretches: any = ")
+        f.write(json.dumps(stretches_dict, ensure_ascii=False, indent=4))
+        f.write(";\n")
+    
+    print(f"Stretches exported successfully to {frontend_stretches_path}")
 
 if __name__ == "__main__":
     asyncio.run(seed())

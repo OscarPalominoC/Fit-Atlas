@@ -8,6 +8,7 @@ import MuscleMap from './MuscleMap';
 import ExerciseIcon from './ExerciseIcon';
 import { useSyncStore } from '../store/syncStore';
 import { exercises as exercisesDict } from '../data/exercises';
+import { stretches as stretchesDict } from '../data/stretches';
 
 interface RoutineManagerProps {
   userId: string;
@@ -21,6 +22,7 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([]);
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
   const [exerciseSearch, setExerciseSearch] = useState('');
+  const [pickerTab, setPickerTab] = useState<'exercises' | 'stretches'>('exercises');
   const [activeSupersetIndex, setActiveSupersetIndex] = useState<number | null>(null);
   const queryClient = useQueryClient();
   const t = languages[language].routines;
@@ -33,14 +35,24 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
     queryFn: () => getRoutines(userId)
   });
 
-  const backendMuscleName = selectedMuscles.length > 0 
-    ? languages['en'].muscles[selectedMuscles[0] as keyof typeof languages['en']['muscles']]
-    : undefined;
+  const getBackendMuscleNames = (slug: string): string[] => {
+    const enName = languages['en'].muscles[slug as keyof typeof languages['en']['muscles']];
+    if (slug === 'upper-back') return ['Back', 'Lats', 'Upper Back'];
+    if (slug === 'abs') return ['Abs', 'Abdominals'];
+    return [enName];
+  };
+
+  const activeMuscleNames = selectedMuscles.flatMap(m => getBackendMuscleNames(m));
 
   const availableExercises = Object.values(exercisesDict).filter((ex: any) => {
-    const muscleMatch = !backendMuscleName || ex.primary_muscles.includes(backendMuscleName);
+    const muscleMatch = selectedMuscles.length === 0 || ex.primary_muscles.some((m: string) => activeMuscleNames.includes(m));
     const equipmentMatch = selectedEquipment.length === 0 || ex.equipment.some((eq: string) => selectedEquipment.includes(eq));
     return muscleMatch && equipmentMatch;
+  });
+
+  const availableStretches = Object.values(stretchesDict).filter((st: any) => {
+    const muscleMatch = selectedMuscles.length === 0 || st.primary_muscles.some((m: string) => activeMuscleNames.includes(m));
+    return muscleMatch;
   });
 
   const createMutation = useMutation({
@@ -115,8 +127,8 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
         exercise_id: exercise.name,
         reps: isCardio ? 0 : 10,
         weight: 0,
-        time_minutes: isCardio ? 30 : 0,
-        is_time_based: isCardio
+        time_seconds: isCardio ? 1800 : 0,
+        is_time_based: isCardio || !!exercise.hold_duration_seconds
       }];
       newBlocks[activeSupersetIndex] = superset;
       setEditingRoutine({ ...editingRoutine, blocks: newBlocks });
@@ -130,9 +142,9 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
           sets: isCardio ? 1 : 3,
           reps: isCardio ? 0 : 10,
           weight: 0,
-          time_minutes: isCardio ? 30 : 0,
+          time_seconds: isCardio ? 1800 : 0,
           rest_seconds: 90,
-          is_time_based: isCardio
+          is_time_based: isCardio || !!exercise.hold_duration_seconds
         }]
       });
     }
@@ -181,7 +193,7 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
           exCount++;
           totalSets += block.sets || 1;
           if (block.is_time_based) {
-            totalMinutes += block.time_minutes || 0;
+            totalMinutes += (block.time_seconds || 0) / 60;
           } else {
             totalReps += (block.sets || 1) * (block.reps || 1);
           }
@@ -195,7 +207,7 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
             totalExDifficulty += exData.difficulty || 1;
             exCount++;
             if (ex.is_time_based) {
-              totalMinutes += ex.time_minutes || 0;
+              totalMinutes += (ex.time_seconds || 0) / 60;
             } else {
               totalReps += (block.sets || 1) * (ex.reps || 1);
             }
@@ -416,12 +428,34 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
                               ) : (
                                 <div className="space-y-1 sm:col-span-2">
                                   <label className="text-[10px] font-black text-text-secondary uppercase tracking-wider">{t.time}</label>
-                                  <input 
-                                    type="number" 
-                                    value={block.time_minutes} 
-                                    onChange={(e) => updateBlock(i, 'time_minutes', parseInt(e.target.value))}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-sm focus:border-brand-primary outline-none font-bold"
-                                  />
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex-1 relative">
+                                      <input 
+                                        type="number" 
+                                        value={Math.floor((block.time_seconds || 0) / 60)} 
+                                        onChange={(e) => {
+                                          const mins = parseInt(e.target.value) || 0;
+                                          const secs = (block.time_seconds || 0) % 60;
+                                          updateBlock(i, 'time_seconds', mins * 60 + secs);
+                                        }}
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-sm focus:border-brand-primary outline-none font-bold pr-10"
+                                      />
+                                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-black text-text-secondary">MIN</span>
+                                    </div>
+                                    <div className="flex-1 relative">
+                                      <input 
+                                        type="number" 
+                                        value={(block.time_seconds || 0) % 60} 
+                                        onChange={(e) => {
+                                          const mins = Math.floor((block.time_seconds || 0) / 60);
+                                          const secs = parseInt(e.target.value) || 0;
+                                          updateBlock(i, 'time_seconds', mins * 60 + secs);
+                                        }}
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-sm focus:border-brand-primary outline-none font-bold pr-10"
+                                      />
+                                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-black text-text-secondary">SEC</span>
+                                    </div>
+                                  </div>
                                 </div>
                               )}
                             </div>
@@ -481,12 +515,31 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
                                     ) : (
                                       <div className="text-right">
                                         <p className="text-[8px] font-black text-text-secondary uppercase">{t.time}</p>
-                                        <input 
-                                          type="number" 
-                                          value={ex.time_minutes}
-                                          onChange={(e) => updateSupersetExercise(i, exIndex, 'time_minutes', parseInt(e.target.value))}
-                                          className="w-16 bg-transparent text-right font-bold focus:outline-none" 
-                                        />
+                                        <div className="flex items-center gap-1">
+                                          <input 
+                                            type="number" 
+                                            value={Math.floor((ex.time_seconds || 0) / 60)}
+                                            onChange={(e) => {
+                                              const mins = parseInt(e.target.value) || 0;
+                                              const secs = (ex.time_seconds || 0) % 60;
+                                              updateSupersetExercise(i, exIndex, 'time_seconds', mins * 60 + secs);
+                                            }}
+                                            className="w-8 bg-transparent text-right font-bold focus:outline-none" 
+                                            placeholder="m"
+                                          />
+                                          <span className="text-[8px] opacity-30">:</span>
+                                          <input 
+                                            type="number" 
+                                            value={(ex.time_seconds || 0) % 60}
+                                            onChange={(e) => {
+                                              const mins = Math.floor((ex.time_seconds || 0) / 60);
+                                              const secs = parseInt(e.target.value) || 0;
+                                              updateSupersetExercise(i, exIndex, 'time_seconds', mins * 60 + secs);
+                                            }}
+                                            className="w-8 bg-transparent text-left font-bold focus:outline-none" 
+                                            placeholder="s"
+                                          />
+                                        </div>
                                       </div>
                                     )}
                                   </div>
@@ -595,10 +648,28 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
                   )}
                 </div>
 
+                <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5">
+                  <button 
+                    onClick={() => setPickerTab('exercises')}
+                    className={`flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${pickerTab === 'exercises' ? 'bg-brand-primary text-white shadow-lg' : 'text-text-secondary hover:text-white'}`}
+                  >
+                    {language === 'es' ? 'Ejercicios' : 'Exercises'}
+                  </button>
+                  <button 
+                    onClick={() => setPickerTab('stretches')}
+                    className={`flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${pickerTab === 'stretches' ? 'bg-brand-secondary text-white shadow-lg' : 'text-text-secondary hover:text-white'}`}
+                  >
+                    {language === 'es' ? 'Estiramientos' : 'Stretches'}
+                  </button>
+                </div>
+
                 <div className="grid grid-cols-1 gap-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                  {availableExercises.filter((ex: any) => ex.name.toLowerCase().includes(exerciseSearch.toLowerCase())).map((ex: any) => (
-                    <RoutineExerciseItem key={ex.id} ex={ex} language={language} onAdd={addExerciseToRoutine} />
-                  ))}
+                  {(pickerTab === 'exercises' ? availableExercises : availableStretches)
+                    .filter((ex: any) => ex.name.toLowerCase().includes(exerciseSearch.toLowerCase()))
+                    .map((ex: any) => (
+                      <RoutineExerciseItem key={ex.id} ex={ex} language={language} onAdd={addExerciseToRoutine} />
+                    ))
+                  }
                 </div>
               </div>
             </div>
@@ -687,7 +758,7 @@ const RoutineManager: React.FC<RoutineManagerProps> = ({ userId, language, onSta
                           <span className="font-bold text-text-secondary truncate">{block.exercise_id}</span>
                           <span className="text-white/30 shrink-0">
                             {block.is_time_based
-                              ? `${block.sets || 1}×${block.time_minutes || 30} min`
+                              ? `${block.sets || 1}×${Math.floor((block.time_seconds || 0) / 60)}m ${(block.time_seconds || 0) % 60}s`
                               : `${block.sets || 3}×${block.reps || 10} @ ${block.weight || 0}kg`
                             }
                           </span>

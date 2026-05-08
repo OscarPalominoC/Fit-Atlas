@@ -1,7 +1,7 @@
 import os
 from pymongo import AsyncMongoClient
 from beanie import init_beanie
-from app.models import User, MuscleGroup, MovementPattern, Exercise, Routine, WorkoutSession, MuscleRecovery
+from app.models import User, MuscleGroup, MovementPattern, Exercise, Stretch, Routine, WorkoutSession, MuscleRecovery, BodyMetric
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -18,9 +18,11 @@ async def init_db():
             MuscleGroup,
             MovementPattern,
             Exercise,
+            Stretch,
             Routine,
             WorkoutSession,
-            MuscleRecovery
+            MuscleRecovery,
+            BodyMetric
         ]
     )
     print(f"Connected to MongoDB: {DATABASE_NAME}")

@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
-from typing import Dict, List
-from app.models import WorkoutSession, Exercise, Routine, MuscleRecovery
+from typing import Dict, List, Any
+from app.models import WorkoutSession, Exercise, Routine, MuscleRecovery, Stretch
 from beanie.operators import In
 
 ANTERIOR_MUSCLES = {"chest", "abs", "obliques", "biceps", "deltoids", "quadriceps", "adductors", "forearm"}
@@ -54,31 +54,39 @@ async def get_focus_distribution(user_id: str) -> Dict[str, float]:
     
     scores = {"Anterior": 0.0, "Posterior": 0.0, "Core": 0.0}
     
-    # Cache exercises to avoid redundant DB calls
+    # Cache exercises and stretches to avoid redundant DB calls
     exercise_ids = set()
     for session in sessions:
         for ex in session.completed_exercises:
             exercise_ids.add(ex.exercise_id)
             
-    exercises = await Exercise.find(In(Exercise.id, list(exercise_ids))).to_list()
-    exercise_map = {str(ex.id): ex for ex in exercises}
+    # Search in both Exercises and Stretches by name
+    exercises = await Exercise.find(In(Exercise.name, list(exercise_ids))).to_list()
+    stretches = await Stretch.find(In(Stretch.name, list(exercise_ids))).to_list()
+    
+    exercise_map = {ex.name: ex for ex in exercises}
+    stretch_map = {st.name: st for st in stretches}
     
     for session in sessions:
         for completed_ex in session.completed_exercises:
-            ex_data = exercise_map.get(completed_ex.exercise_id)
+            ex_data = exercise_map.get(completed_ex.exercise_id) or stretch_map.get(completed_ex.exercise_id)
             if not ex_data:
                 continue
                 
             volume = completed_ex.sets_completed * sum(completed_ex.reps) / len(completed_ex.reps) if completed_ex.reps else 0
+            # If volume is 0 (e.g. bodyweight flexions), use a base value of 1 per set for distribution
+            if volume == 0:
+                volume = completed_ex.sets_completed * 10 
             
             muscles = set(ex_data.primary_muscles) | set(ex_data.secondary_muscles)
             
             for muscle in muscles:
-                if muscle in ANTERIOR_MUSCLES:
+                m_lower = muscle.lower()
+                if m_lower in ANTERIOR_MUSCLES:
                     scores["Anterior"] += volume
-                if muscle in POSTERIOR_MUSCLES:
+                if m_lower in POSTERIOR_MUSCLES:
                     scores["Posterior"] += volume
-                if muscle in CORE_MUSCLES:
+                if m_lower in CORE_MUSCLES:
                     scores["Core"] += volume
                     
     total = sum(scores.values())
@@ -161,4 +169,102 @@ async def get_muscle_recovery_states(user_id: str) -> Dict[str, dict]:
         states[muscle] = {**MUSCLE_STATES_CONFIG[state_key], "key": state_key}
         
     return states
+
+async def get_performance_delta(user_id: str) -> List[Dict[str, Any]]:
+    # Get last 10 sessions to calculate trends
+    sessions = await WorkoutSession.find(WorkoutSession.user_id == user_id).sort(WorkoutSession.started_at).limit(10).to_list()
+    
+    if not sessions:
+        return []
+        
+    deltas = []
+    prev_vol = None
+    
+    for session in sessions:
+        if prev_vol is not None and prev_vol > 0:
+            delta = ((session.total_volume - prev_vol) / prev_vol) * 100
+        else:
+            delta = 0.0
+            
+        deltas.append({
+            "date": session.started_at.isoformat(),
+            "volume": session.total_volume,
+            "delta_percent": round(delta, 1)
+        })
+        prev_vol = session.total_volume
+        
+    return deltas
+
+async def get_muscle_volume_stats(user_id: str) -> Dict[str, float]:
+    since = datetime.now() - timedelta(days=30)
+    sessions = await WorkoutSession.find(WorkoutSession.user_id == user_id, WorkoutSession.started_at >= since).to_list()
+    
+    volume_stats = {}
+    
+    # Pre-fetch exercises
+    exercise_ids = set()
+    for s in sessions:
+        for ex in s.completed_exercises:
+            exercise_ids.add(ex.exercise_id)
+            
+    exercises = await Exercise.find(In(Exercise.name, list(exercise_ids))).to_list()
+    ex_map = {ex.name: ex for ex in exercises}
+    
+    for s in sessions:
+        for ex in s.completed_exercises:
+            ex_data = ex_map.get(ex.exercise_id)
+            if not ex_data: continue
+            
+            # Use real volume if available, or estimated
+            vol = sum(ex.reps) * ex.weight if not ex.is_time_based else sum(ex.active_times) * 5
+            
+            muscles = set(ex_data.primary_muscles)
+            for m in muscles:
+                m_lower = m.lower()
+                volume_stats[m_lower] = volume_stats.get(m_lower, 0) + vol
+                
+    return volume_stats
+
+
+async def get_training_consistency(user_id: str) -> List[str]:
+    # Last 90 days for heatmap
+    since = datetime.now() - timedelta(days=90)
+    sessions = await WorkoutSession.find(WorkoutSession.user_id == user_id, WorkoutSession.started_at >= since).to_list()
+    return [s.started_at.date().isoformat() for s in sessions]
+
+async def get_strength_progress(user_id: str) -> List[Dict[str, Any]]:
+    # Find top 3 most frequent strength exercises
+    sessions = await WorkoutSession.find(WorkoutSession.user_id == user_id).sort(-WorkoutSession.started_at).limit(30).to_list()
+    
+    ex_frequency = {}
+    for s in sessions:
+        for ex in s.completed_exercises:
+            if not ex.is_time_based:
+                ex_frequency[ex.exercise_id] = ex_frequency.get(ex.exercise_id, 0) + 1
+                
+    top_exercises = sorted(ex_frequency.items(), key=lambda x: x[1], reverse=True)[:3]
+    top_names = [name for name, freq in top_exercises]
+    
+    progress_data = []
+    for ex_name in top_names:
+        history = []
+        for s in sessions:
+            for ex in s.completed_exercises:
+                if ex.exercise_id == ex_name and ex.reps:
+                    max_reps = max(ex.reps)
+                    # Brzycki formula for 1RM: weight * (36 / (37 - reps))
+                    one_rm = ex.weight * (36 / (37 - max_reps)) if max_reps < 37 else ex.weight
+                    history.append({
+                        "date": s.started_at.isoformat(),
+                        "one_rm": round(one_rm, 1)
+                    })
+                    break
+        if history:
+            progress_data.append({
+                "exercise": ex_name,
+                "history": history[::-1] # Chronological
+            })
+            
+    return progress_data
+
 

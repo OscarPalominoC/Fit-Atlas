@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Square, CheckCircle, Timer, Dumbbell, ChevronRight, ChevronLeft, Zap, Layers, Clock, SkipForward } from 'lucide-react';
+import { Square, CheckCircle, Timer, Dumbbell, ChevronRight, ChevronLeft, Zap, Layers, Clock, SkipForward, Pause, Play as PlayIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { languages } from '../languages';
 import ExerciseIcon from './ExerciseIcon';
 import { exercises as exercisesDict } from '../data/exercises';
-
+import { stretches as stretchesDict } from '../data/stretches';
 
 interface WorkoutLiveProps {
   routine: any;
@@ -12,44 +12,51 @@ interface WorkoutLiveProps {
   language?: 'en' | 'es';
 }
 
-
-// Flatten routine blocks into a linear list of exercises with their planned values
+// Flatten routine blocks into a linear list of "Set-Steps"
 function flattenBlocks(blocks: any[]) {
   const flat: any[] = [];
   blocks.forEach((block, blockIndex) => {
+    const sets = block.sets || 3;
+    
     if (block.type === 'superset' && block.exercises?.length) {
-      // For supersets, add each exercise with superset context
-      block.exercises.forEach((ex: any, exIndex: number) => {
-        flat.push({
-          exercise_id: ex.exercise_id || ex.exerciseId,
-          plannedSets: block.sets || 3,
-          plannedReps: ex.reps || 10,
-          plannedWeight: ex.weight || 0,
-          isCardio: ex.isCardio || false,
-          is_time_based: ex.is_time_based || ex.isCardio || false,
-          plannedTime: ex.time_minutes || 0,
-          restSeconds: exIndex === block.exercises.length - 1 ? (block.rest_seconds || 120) : 30,
-          blockIndex,
-          supersetLabel: `Superset ${blockIndex + 1}`,
-          supersetSize: block.exercises.length,
-          supersetPosition: exIndex + 1,
+      for (let s = 1; s <= sets; s++) {
+        block.exercises.forEach((ex: any, exIndex: number) => {
+          const isLastInSet = exIndex === block.exercises.length - 1;
+          flat.push({
+            exercise_id: ex.exercise_id || ex.exerciseId,
+            currentSet: s,
+            totalSets: sets,
+            plannedReps: ex.reps || 10,
+            plannedWeight: ex.weight || 0,
+            is_time_based: ex.is_time_based || ex.isCardio || !!ex.hold_duration_seconds,
+            plannedTime: ex.time_seconds || 0,
+            restSeconds: isLastInSet ? (block.rest_seconds || 120) : 10,
+            blockIndex,
+            supersetLabel: `Superset ${blockIndex + 1}`,
+            supersetSize: block.exercises.length,
+            supersetPosition: exIndex + 1,
+            isTransitionRest: !isLastInSet
+          });
         });
-      });
+      }
     } else {
-      flat.push({
-        exercise_id: block.exercise_id || block.exerciseId,
-        plannedSets: block.sets || 3,
-        plannedReps: block.reps || 10,
-        plannedWeight: block.weight || 0,
-        isCardio: block.isCardio || false,
-        is_time_based: block.is_time_based || block.isCardio || false,
-        plannedTime: block.time_minutes || 0,
-        restSeconds: block.rest_seconds || 90,
-        blockIndex,
-        supersetLabel: null,
-        supersetSize: 0,
-        supersetPosition: 0,
-      });
+      for (let s = 1; s <= sets; s++) {
+        flat.push({
+          exercise_id: block.exercise_id || block.exerciseId,
+          currentSet: s,
+          totalSets: sets,
+          plannedReps: block.reps || 10,
+          plannedWeight: block.weight || 0,
+          is_time_based: block.is_time_based || block.isCardio || !!block.hold_duration_seconds,
+          plannedTime: block.time_seconds || 0,
+          restSeconds: s === sets ? 30 : (block.rest_seconds || 90),
+          blockIndex,
+          supersetLabel: null,
+          supersetSize: 0,
+          supersetPosition: 0,
+          isTransitionRest: false
+        });
+      }
     }
   });
   return flat;
@@ -57,44 +64,66 @@ function flattenBlocks(blocks: any[]) {
 
 const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language = 'es' }) => {
   const [seconds, setSeconds] = useState(0);
-  const [activeExerciseIndex, setActiveExerciseIndex] = useState(0);
-  const [currentSet, setCurrentSet] = useState(1);
+  const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [currentWeight, setCurrentWeight] = useState(0);
   const [currentReps, setCurrentReps] = useState(10);
   const [completedSets, setCompletedSets] = useState<any[]>([]);
   const [isResting, setIsResting] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [restCountdown, setRestCountdown] = useState(0);
+  
+  // Track time per step
+  const [stepStartTime, setStepStartTime] = useState(0);
+  // Prevent double registration of same step
+  const [registeredStepIndices, setRegisteredStepIndices] = useState<Set<number>>(new Set());
+
+  // Countdown timer for time-based exercises
+  const [timerSeconds, setTimerSeconds] = useState(0);
+
   const t = languages[language].ui;
   const rt = languages[language].routines;
 
-  const flatExercises = React.useMemo(() => flattenBlocks(routine.blocks || []), [routine.blocks]);
-  const activeExercise = flatExercises[activeExerciseIndex];
+  const flatSteps = React.useMemo(() => flattenBlocks(routine.blocks || []), [routine.blocks]);
+  const activeStep = flatSteps[activeStepIndex];
 
-  // Look up exercise data from the dictionary for the gif
-  const exerciseData = activeExercise
-    ? Object.values(exercisesDict).find((ex: any) => ex.name === activeExercise.exercise_id)
+  const exerciseData = activeStep
+    ? (Object.values(exercisesDict).find((ex: any) => ex.name === activeStep.exercise_id) || 
+       Object.values(stretchesDict).find((st: any) => st.name === activeStep.exercise_id))
     : null;
 
-  // Initialize weight/reps from the planned values when exercise changes
   useEffect(() => {
-    if (activeExercise) {
-      setCurrentWeight(activeExercise.plannedWeight);
-      setCurrentReps(activeExercise.is_time_based ? activeExercise.plannedTime : activeExercise.plannedReps);
-      setCurrentSet(1);
+    if (activeStep) {
+      setCurrentWeight(activeStep.plannedWeight);
+      setCurrentReps(activeStep.is_time_based ? activeStep.plannedTime : activeStep.plannedReps);
+      setStepStartTime(seconds); // Reset step timer
+      
+      if (activeStep.is_time_based) {
+        setTimerSeconds(activeStep.plannedTime);
+        setIsPaused(true);
+      }
     }
-  }, [activeExerciseIndex, activeExercise]);
+  }, [activeStepIndex, activeStep]);
 
-  // Global timer
   useEffect(() => {
-    const interval = setInterval(() => setSeconds(s => s + 1), 1000);
+    if (isPaused || timerSeconds <= 0) return;
+    const interval = setInterval(() => {
+      setTimerSeconds(s => s - 1);
+    }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isPaused, timerSeconds]);
 
-  // Rest countdown
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!isPaused) setSeconds(s => s + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isPaused]);
+
   useEffect(() => {
     if (!isResting || restCountdown <= 0) return;
     const interval = setInterval(() => {
       setRestCountdown(prev => {
+        if (isPaused) return prev;
         if (prev <= 1) {
           setIsResting(false);
           return 0;
@@ -103,7 +132,7 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [isResting, restCountdown]);
+  }, [isResting, restCountdown, isPaused]);
 
   const [showFinishModal, setShowFinishModal] = useState(false);
 
@@ -114,35 +143,29 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
   };
 
   const handleCompleteSet = useCallback(() => {
-    if (!activeExercise) return;
+    if (!activeStep || registeredStepIndices.has(activeStepIndex)) return;
 
+    const stepDuration = seconds - stepStartTime;
     const newSet = {
-      exercise_id: activeExercise.exercise_id,
-      set_number: currentSet,
+      exercise_id: activeStep.exercise_id,
+      set_number: activeStep.currentSet,
       reps: currentReps,
       weight: currentWeight,
-      time: seconds,
+      time: stepDuration, // Record ACTUAL time for this set
+      stepIndex: activeStepIndex
     };
+    
     setCompletedSets(prev => [...prev, newSet]);
+    setRegisteredStepIndices(prev => new Set(prev).add(activeStepIndex));
 
-    if (currentSet < activeExercise.plannedSets) {
-      // More sets to go — start rest timer
-      setCurrentSet(prev => prev + 1);
-      setRestCountdown(activeExercise.restSeconds);
+    if (activeStepIndex < flatSteps.length - 1) {
+      setRestCountdown(activeStep.restSeconds);
       setIsResting(true);
+      setActiveStepIndex(prev => prev + 1);
     } else {
-      // All sets done for this exercise
-      if (activeExerciseIndex < flatExercises.length - 1) {
-        // Move to next exercise
-        setRestCountdown(activeExercise.restSeconds);
-        setIsResting(true);
-        setActiveExerciseIndex(prev => prev + 1);
-      } else {
-        // LAST EXERCISE, LAST SET DONE
-        setShowFinishModal(true);
-      }
+      setShowFinishModal(true);
     }
-  }, [activeExercise, currentSet, currentReps, currentWeight, seconds, activeExerciseIndex, flatExercises.length]);
+  }, [activeStep, currentReps, currentWeight, seconds, stepStartTime, activeStepIndex, flatSteps.length, registeredStepIndices]);
 
   const handleSkipRest = () => {
     setIsResting(false);
@@ -150,7 +173,6 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
   };
 
   const handleFinish = useCallback(() => {
-    // Group completed sets by exercise for the backend
     const exerciseMap = new Map<string, any>();
     completedSets.forEach(set => {
       if (!exerciseMap.has(set.exercise_id)) {
@@ -159,33 +181,34 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
           sets_completed: 0,
           reps: [],
           weight: set.weight,
-          active_time: seconds,
+          active_times: [],
           rest_time: 0,
-          is_time_based: Object.values(flatExercises).find(fe => fe.exercise_id === set.exercise_id)?.is_time_based || false
+          is_time_based: Object.values(flatSteps).find(fs => fs.exercise_id === set.exercise_id)?.is_time_based || false
         });
       }
       const entry = exerciseMap.get(set.exercise_id)!;
       entry.sets_completed += 1;
       entry.reps.push(set.reps);
       entry.weight = Math.max(entry.weight, set.weight);
+      entry.active_times.push(set.time); // Store time for each individual set
     });
 
     onComplete({
       duration_seconds: seconds,
       completed_exercises: Array.from(exerciseMap.values()),
       routine_id: routine.id || routine._id,
-      routine_name: routine.name, // Pass name for history display
-      total_volume: 0, // Calculated by backend
-      difficulty_score: 0, // Calculated by backend
-      started_at: new Date().toISOString(),
+      routine_name: routine.name || routine.routine_name,
+      total_volume: 0, 
+      difficulty_score: 0, 
+      started_at: new Date(Date.now() - seconds * 1000).toISOString(),
     });
-  }, [completedSets, seconds, routine, onComplete]);
+  }, [completedSets, seconds, routine, onComplete, flatSteps]);
 
-  const totalPlannedSets = flatExercises.reduce((acc: number, ex: any) => acc + ex.plannedSets, 0);
-  const totalCompletedSets = completedSets.length;
-  const progress = totalPlannedSets > 0 ? (totalCompletedSets / totalPlannedSets) * 100 : 0;
+  const totalPlannedSteps = flatSteps.length;
+  const totalCompletedSteps = completedSets.length;
+  const progress = totalPlannedSteps > 0 ? (totalCompletedSteps / totalPlannedSteps) * 100 : 0;
 
-  if (!activeExercise) {
+  if (!activeStep) {
     return (
       <div className="max-w-3xl mx-auto text-center py-20">
         <Dumbbell size={64} className="mx-auto mb-6 text-white/10" />
@@ -198,7 +221,6 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 sm:space-y-8 pb-32">
-      {/* Finish Confirmation Modal */}
       <AnimatePresence>
         {showFinishModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -231,7 +253,7 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
                   {t.saveSession}
                 </button>
                 <button
-                  onClick={() => onComplete(null)} // App.tsx should handle null as discard
+                  onClick={() => onComplete(null)}
                   className="bg-white/5 text-red-400 py-4 rounded-2xl font-black uppercase tracking-widest text-xs border border-red-500/10 hover:bg-red-500/10 transition-all"
                 >
                   {t.discardSession}
@@ -248,7 +270,6 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
         )}
       </AnimatePresence>
 
-      {/* Header with timer and controls */}
       <header className="glass-card p-5 sm:p-8 rounded-3xl lg:rounded-[40px] border-white/5 relative overflow-hidden min-w-0">
         <div className="absolute top-0 left-0 w-full h-1 bg-white/5">
           <motion.div
@@ -261,14 +282,20 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
 
         <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 md:gap-8">
           <div className="min-w-0 w-full">
-            <h2 className="text-2xl sm:text-3xl font-black heading-premium tracking-tight mb-2 break-words">{routine.name}</h2>
+            <h2 className="text-2xl sm:text-3xl font-black heading-premium tracking-tight mb-2 break-words">{routine.name || routine.routine_name}</h2>
             <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-text-secondary">
               <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-xl border border-white/5">
                 <Timer size={16} className="text-brand-primary" />
                 <span className="font-black text-xl text-white tracking-normal">{formatTime(seconds)}</span>
+                <button 
+                  onClick={() => setIsPaused(!isPaused)}
+                  className={`ml-2 p-1 rounded-lg transition-colors ${isPaused ? 'bg-brand-primary text-white' : 'hover:bg-white/10'}`}
+                >
+                  {isPaused ? <PlayIcon size={14} fill="currentColor" /> : <Pause size={14} fill="currentColor" />}
+                </button>
               </div>
               <span className="text-xs font-black uppercase tracking-[0.2em] opacity-50">
-                {totalCompletedSets}/{totalPlannedSets} sets • {activeExerciseIndex + 1}/{flatExercises.length} {language === 'es' ? 'ejercicios' : 'exercises'}
+                {totalCompletedSteps}/{totalPlannedSteps} {language === 'es' ? 'series' : 'sets'} • {activeStep.currentSet}/{activeStep.totalSets} {rt.sets}
               </span>
             </div>
           </div>
@@ -276,15 +303,15 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 w-full md:w-auto">
             <div className="flex glass-sm rounded-2xl p-1.5 border border-white/5">
               <button
-                disabled={activeExerciseIndex === 0}
-                onClick={() => setActiveExerciseIndex(i => i - 1)}
+                disabled={activeStepIndex === 0}
+                onClick={() => setActiveStepIndex(i => i - 1)}
                 className="p-3 hover:bg-white/10 rounded-xl disabled:opacity-30 transition-colors"
               >
                 <ChevronLeft size={24} />
               </button>
               <button
-                disabled={activeExerciseIndex === flatExercises.length - 1}
-                onClick={() => setActiveExerciseIndex(i => i + 1)}
+                disabled={activeStepIndex === totalPlannedSteps - 1}
+                onClick={() => setActiveStepIndex(i => i + 1)}
                 className="p-3 hover:bg-white/10 rounded-xl disabled:opacity-30 transition-colors"
               >
                 <ChevronRight size={24} />
@@ -300,8 +327,6 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
         </div>
       </header>
 
-
-      {/* Rest Timer Overlay */}
       <AnimatePresence>
         {isResting && (
           <motion.div
@@ -313,7 +338,9 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
             <div className="absolute inset-0 bg-brand-secondary/5" />
             <div className="relative z-10">
               <Clock size={48} className="mx-auto mb-4 text-brand-secondary" />
-              <p className="text-xs font-black text-brand-secondary uppercase tracking-[0.3em] mb-4">{rt.restPeriod}</p>
+              <p className="text-xs font-black text-brand-secondary uppercase tracking-[0.3em] mb-4">
+                {activeStep.isTransitionRest ? (language === 'es' ? 'PREPARACIÓN' : 'PREPARATION') : rt.restPeriod}
+              </p>
               <p className="text-7xl sm:text-8xl font-black heading-premium text-white mb-8">{formatTime(restCountdown)}</p>
               <button
                 onClick={handleSkipRest}
@@ -326,7 +353,6 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
         )}
       </AnimatePresence>
 
-      {/* Active Exercise Card */}
       {!isResting && (
         <div className="glass-card p-5 sm:p-8 md:p-14 rounded-3xl lg:rounded-[56px] relative overflow-hidden min-w-0">
           <div className="absolute top-0 right-0 p-8 opacity-5">
@@ -335,25 +361,23 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
 
           <div className="relative z-10">
             <motion.div
-              key={activeExerciseIndex}
+              key={activeStepIndex}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               className="space-y-8"
             >
-              {/* Superset badge */}
-              {activeExercise.supersetLabel && (
+              {activeStep.supersetLabel && (
                 <div className="flex items-center gap-2 px-4 py-2 bg-brand-secondary/10 rounded-2xl border border-brand-secondary/20 w-fit">
                   <Layers size={16} className="text-brand-secondary" />
                   <span className="text-xs font-black text-brand-secondary uppercase tracking-widest">
-                    {activeExercise.supersetLabel} — {activeExercise.supersetPosition}/{activeExercise.supersetSize}
+                    {activeStep.supersetLabel} — {activeStep.supersetPosition}/{activeStep.supersetSize}
                   </span>
                 </div>
               )}
 
-              {/* Exercise info */}
               <div className="flex items-start gap-5">
                 {(exerciseData as any) && (
-                  <ExerciseIcon name={activeExercise.exerciseId} mediaGif={(exerciseData as any)?.media?.gif} className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-2xl" />
+                  <ExerciseIcon name={activeStep.exercise_id} mediaGif={(exerciseData as any)?.media?.gif} className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-2xl" />
                 )}
                 <div>
                   <div className="flex items-center gap-3 mb-2">
@@ -362,17 +386,16 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
                     </div>
                     <p className="text-sm font-black text-brand-primary uppercase tracking-[0.3em]">{t.objective}</p>
                   </div>
-                  <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black heading-premium tracking-normal break-words">{activeExercise.exercise_id}</h3>
+                  <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black heading-premium tracking-normal break-words">{activeStep.exercise_id}</h3>
                   <p className="text-text-secondary font-bold text-sm mt-2">
-                    {activeExercise.is_time_based ? t.repetitions : rt.sets}: {currentSet}/{activeExercise.plannedSets}
-                    {!activeExercise.is_time_based && <> • {rt.reps}: {activeExercise.plannedReps} • {rt.weight}: {activeExercise.plannedWeight}kg</>}
-                    {activeExercise.is_time_based && <> • {rt.time}: {activeExercise.plannedTime} min</>}
+                    {rt.sets}: {activeStep.currentSet}/{activeStep.totalSets}
+                    {!activeStep.is_time_based && <> • {rt.reps}: {activeStep.plannedReps} • {rt.weight}: {activeStep.plannedWeight}kg</>}
+                    {activeStep.is_time_based && <> • {rt.time}: {Math.floor((activeStep.plannedTime || 0) / 60)}m {(activeStep.plannedTime || 0) % 60}s</>}
                   </p>
                 </div>
               </div>
 
-              {/* Input fields */}
-              {!activeExercise.is_time_based ? (
+              {!activeStep.is_time_based ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
                   <div className="space-y-4">
                     <label className="text-xs font-black text-text-secondary uppercase tracking-[0.2em] ml-1">{t.payload} (kg)</label>
@@ -400,50 +423,85 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
                   </div>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  <label className="text-xs font-black text-text-secondary uppercase tracking-[0.2em] ml-1">{rt.time}</label>
-                  <div className="relative max-w-sm mx-auto">
-                    <input
-                      type="number"
-                      value={currentReps}
-                      onChange={(e) => setCurrentReps(Number(e.target.value))}
-                      className="w-full bg-white/5 border border-white/10 rounded-3xl lg:rounded-[32px] py-5 sm:py-8 text-center text-4xl sm:text-5xl font-black focus:border-brand-primary focus:bg-white/[0.08] transition-all outline-none heading-premium tracking-normal shadow-inner"
-                    />
-                    <div className="absolute inset-y-0 right-8 flex items-center pointer-events-none opacity-20 font-black text-xl">MIN</div>
+                <div className="space-y-8">
+                  <div className="text-center space-y-4">
+                    <p className="text-xs font-black text-brand-primary uppercase tracking-[0.3em]">{language === 'es' ? 'CONTEO REGRESIVO' : 'COUNTDOWN'}</p>
+                    <div className="text-8xl sm:text-9xl font-black heading-premium tabular-nums">
+                      {formatTime(timerSeconds)}
+                    </div>
+                    <div className="flex justify-center gap-4">
+                      <button
+                        onClick={() => setIsPaused(!isPaused)}
+                        className={`px-8 py-4 rounded-2xl font-black flex items-center gap-2 transition-all shadow-xl ${!isPaused ? 'bg-white/5 text-text-secondary border border-white/10' : 'bg-brand-primary text-white shadow-brand-primary/20 hover:scale-105'}`}
+                      >
+                        {!isPaused ? <Pause size={20} fill="currentColor" /> : <PlayIcon size={20} fill="currentColor" />}
+                        {!isPaused ? (language === 'es' ? 'PAUSAR' : 'PAUSE') : (language === 'es' ? 'INICIAR' : 'START')}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="text-xs font-black text-text-secondary uppercase tracking-[0.2em] ml-1">{language === 'es' ? 'TIEMPO REAL LOGRADO' : 'ACTUAL TIME ACHIEVED'}</label>
+                    <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
+                      <div className="relative">
+                        <input
+                          type="number"
+                          value={Math.floor(currentReps / 60)}
+                          onChange={(e) => {
+                            const mins = parseInt(e.target.value) || 0;
+                            const secs = currentReps % 60;
+                            setCurrentReps(mins * 60 + secs);
+                          }}
+                          className="w-full bg-white/5 border border-white/10 rounded-3xl lg:rounded-[32px] py-5 sm:py-8 text-center text-4xl sm:text-5xl font-black focus:border-brand-primary focus:bg-white/[0.08] transition-all outline-none heading-premium tracking-normal shadow-inner"
+                        />
+                        <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none opacity-20 font-black text-[10px]">MIN</div>
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          value={currentReps % 60}
+                          onChange={(e) => {
+                            const mins = Math.floor(currentReps / 60);
+                            const secs = parseInt(e.target.value) || 0;
+                            setCurrentReps(mins * 60 + secs);
+                          }}
+                          className="w-full bg-white/5 border border-white/10 rounded-3xl lg:rounded-[32px] py-5 sm:py-8 text-center text-4xl sm:text-5xl font-black focus:border-brand-primary focus:bg-white/[0.08] transition-all outline-none heading-premium tracking-normal shadow-inner"
+                        />
+                        <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none opacity-20 font-black text-[10px]">SEC</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
 
-              {/* Complete Set Button */}
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleCompleteSet}
-                className="w-full bg-brand-primary/10 hover:bg-brand-primary/20 border border-brand-primary/30 py-5 sm:py-6 rounded-3xl lg:rounded-[32px] font-black text-base sm:text-xl transition-all flex items-center justify-center gap-3 sm:gap-4 group text-brand-primary"
+                disabled={registeredStepIndices.has(activeStepIndex)}
+                className={`w-full py-5 sm:py-6 rounded-3xl lg:rounded-[32px] font-black text-base sm:text-xl transition-all flex items-center justify-center gap-3 sm:gap-4 group ${registeredStepIndices.has(activeStepIndex) ? 'bg-white/5 text-text-secondary border border-white/10 opacity-50 cursor-not-allowed' : 'bg-brand-primary/10 hover:bg-brand-primary/20 border border-brand-primary/30 text-brand-primary'}`}
               >
                 <CheckCircle size={28} className="group-hover:scale-110 transition-transform" />
-                {t.register} — {language === 'es' ? 'Serie' : 'Set'} {currentSet}/{activeExercise.plannedSets}
+                {registeredStepIndices.has(activeStepIndex) ? (language === 'es' ? 'REGISTRADO' : 'REGISTERED') : `${t.register} — ${language === 'es' ? 'Serie' : 'Set'} ${activeStep.currentSet}/${activeStep.totalSets}`}
               </motion.button>
             </motion.div>
           </div>
         </div>
       )}
 
-      {/* Exercise List Progress */}
       <div className="glass-card p-5 sm:p-8 rounded-3xl lg:rounded-[40px] border-white/5">
         <h4 className="font-black text-text-secondary uppercase tracking-[0.2em] text-sm mb-6 flex items-center gap-3">
           <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary" />
-          {language === 'es' ? 'Progreso de ejercicios' : 'Exercise Progress'}
+          {language === 'es' ? 'Protocolo de Entrenamiento' : 'Training Protocol'}
         </h4>
         <div className="space-y-3">
-          {flatExercises.map((ex, i) => {
-            const setsForThis = completedSets.filter(s => s.exercise_id === ex.exerciseId);
-            const isDone = setsForThis.length >= ex.plannedSets;
-            const isCurrent = i === activeExerciseIndex;
+          {flatSteps.map((step, i) => {
+            const isDone = registeredStepIndices.has(i);
+            const isCurrent = i === activeStepIndex;
             return (
               <div
                 key={i}
-                onClick={() => { if (!isResting) setActiveExerciseIndex(i); }}
+                onClick={() => { if (!isResting) setActiveStepIndex(i); }}
                 className={`flex items-center justify-between p-3 sm:p-4 rounded-2xl transition-all cursor-pointer ${
                   isCurrent ? 'bg-brand-primary/10 border border-brand-primary/30' :
                   isDone ? 'bg-brand-secondary/5 border border-brand-secondary/10 opacity-60' :
@@ -459,22 +517,19 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
                     {isDone ? <CheckCircle size={16} /> : i + 1}
                   </div>
                   <div className="min-w-0">
-                    <p className={`font-bold text-sm truncate ${isCurrent ? 'text-white' : 'text-text-secondary'}`}>{ex.exercise_id}</p>
-                    {ex.supersetLabel && (
-                      <span className="text-[10px] text-brand-secondary font-bold">{ex.supersetLabel}</span>
+                    <p className={`font-bold text-sm truncate ${isCurrent ? 'text-white' : 'text-text-secondary'}`}>
+                      {step.exercise_id}
+                      <span className="ml-2 text-[10px] opacity-40 font-black">SET {step.currentSet}</span>
+                    </p>
+                    {step.supersetLabel && (
+                      <span className="text-[10px] text-brand-secondary font-bold uppercase tracking-tighter">{step.supersetLabel}</span>
                     )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-xs font-bold text-text-secondary">
-                    {setsForThis.length}/{ex.plannedSets}
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${isCurrent ? 'text-brand-primary' : 'text-white/20'}`}>
+                    {step.is_time_based ? `${Math.floor((step.plannedTime || 0) / 60)}m ${(step.plannedTime || 0) % 60}s` : `${step.plannedWeight}kg × ${step.plannedReps}`}
                   </span>
-                  <div className="w-16 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full transition-all ${isDone ? 'bg-brand-secondary' : 'bg-brand-primary'}`}
-                      style={{ width: `${(setsForThis.length / ex.plannedSets) * 100}%` }}
-                    />
-                  </div>
                 </div>
               </div>
             );
@@ -482,7 +537,6 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
         </div>
       </div>
 
-      {/* Session Log */}
       {completedSets.length > 0 && (
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 px-1 sm:px-4">
@@ -497,7 +551,7 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
             <AnimatePresence initial={false}>
               {[...completedSets].reverse().map((set, i) => (
                 <motion.div
-                  key={completedSets.length - i}
+                  key={`${set.exercise_id}-${set.set_number}-${set.stepIndex}-${i}`}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   className="glass-sm p-4 sm:p-6 rounded-3xl border border-white/5 flex flex-col sm:flex-row justify-between sm:items-center gap-4 group hover:bg-white/[0.03] transition-colors min-w-0"
@@ -520,7 +574,7 @@ const WorkoutLive: React.FC<WorkoutLiveProps> = ({ routine, onComplete, language
                     <div className="text-right">
                       <span className="text-2xl font-black heading-premium tracking-normal">{set.reps}</span>
                       <span className="text-xs font-bold text-text-secondary ml-1">
-                        {(Object.values(exercisesDict).find((e: any) => e.name === set.exercise_id) as any)?.primary_muscles?.includes('Cardio') ? 'MIN' : 'REPS'}
+                        {(Object.values(exercisesDict).find((e: any) => e.name === set.exercise_id) as any)?.is_time_based || (Object.values(stretchesDict).find((e: any) => e.name === set.exercise_id) as any)?.hold_duration_seconds ? 'SEC' : 'REPS'}
                       </span>
                     </div>
                   </div>
